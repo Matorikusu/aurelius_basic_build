@@ -1,0 +1,35 @@
+{
+  "url": "http://127.0.0.1:8080/login",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Aurelius",
+      "hasCanvas": false,
+      "bodyTextLen": 150,
+      "bodyTextHash": "6bfe42456f2587298ca8c37ed9e2d2cfe8a239ef2c72fc1cf52f1f3bf0517bcb",
+      "bodyTextPrefix": "THE CHAMBER Aurelius Keep your conversations with the emperor. S",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/login.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Aurelius",
+      "hasCanvas": false,
+      "bodyTextLen": 150,
+      "bodyTextHash": "6bfe42456f2587298ca8c37ed9e2d2cfe8a239ef2c72fc1cf52f1f3bf0517bcb",
+      "bodyTextPrefix": "THE CHAMBER Aurelius Keep your conversations with the emperor. S",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/login-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "verdictFile": "/workspace/screenshots/login.json"
+}

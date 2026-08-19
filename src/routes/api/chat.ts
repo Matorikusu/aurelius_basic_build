@@ -1,0 +1,120 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { buildSystemPrompt, maxTokensFor, sanitizeManner } from "@/lib/marcus/prompt";
+import { GREETING } from "@/lib/marcus/types";
+
+type Incoming = { role: string; content: string };
+
+export const Route = createFileRoute("/api/chat")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const apiKey = process.env.XAI_API_KEY;
+        if (!apiKey) {
+          return Response.json({ error: "The chamber is quiet just now." }, { status: 503 });
+        }
+
+        let body: { messages?: Incoming[]; manner?: unknown };
+        try {
+          body = (await request.json()) as { messages?: Incoming[]; manner?: unknown };
+        } catch {
+          return Response.json({ error: "Nothing was said." }, { status: 400 });
+        }
+
+        const manner = sanitizeManner(body.manner);
+        const raw = Array.isArray(body.messages) ? body.messages : [];
+        const messages: { role: "user" | "assistant"; content: string }[] = [];
+        for (const m of raw.slice(-24)) {
+          if ((m.role !== "user" && m.role !== "assistant") || typeof m.content !== "string") continue;
+          const content = m.content.trim().slice(0, 4000);
+          if (!content) continue;
+          messages.push({ role: m.role, content });
+        }
+        if (!messages.some((m) => m.role === "user")) {
+          return Response.json({ error: "Speak first, then I will answer." }, { status: 400 });
+        }
+
+        const system = buildSystemPrompt(manner);
+        const payload = [
+          { role: "system" as const, content: system },
+          { role: "assistant" as const, content: GREETING },
+          ...messages,
+        ];
+
+        const upstream = await fetch("https://api.x.ai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "grok-4.5",
+            stream: true,
+            temperature: 0.75,
+            max_tokens: maxTokensFor(manner),
+            messages: payload,
+          }),
+        });
+
+        if (!upstream.ok || !upstream.body) {
+          const errText = await upstream.text().catch(() => "");
+          console.error("[chat] xAI error", upstream.status, errText.slice(0, 400));
+          return Response.json({ error: "Marcus could not be reached." }, { status: 502 });
+        }
+
+        const encoder = new TextEncoder();
+        const decoder = new TextDecoder();
+        const reader = upstream.body.getReader();
+
+        const stream = new ReadableStream({
+          async start(controller) {
+            let buf = "";
+            try {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buf += decoder.decode(value, { stream: true });
+                const lines = buf.split("\n");
+                buf = lines.pop() ?? "";
+                for (const line of lines) {
+                  const trimmed = line.trim();
+                  if (!trimmed.startsWith("data:")) continue;
+                  const data = trimmed.slice(5).trim();
+                  if (data === "[DONE]") {
+                    controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+                    continue;
+                  }
+                  try {
+                    const json = JSON.parse(data) as {
+                      choices?: { delta?: { content?: string } }[];
+                    };
+                    const delta = json.choices?.[0]?.delta?.content;
+                    if (delta) {
+                      controller.enqueue(
+                        encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`),
+                      );
+                    }
+                  } catch {
+                    /* ignore partial json */
+                  }
+                }
+              }
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : "stream failed";
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`));
+            } finally {
+              controller.close();
+            }
+          },
+        });
+
+        return new Response(stream, {
+          headers: {
+            "Content-Type": "text/event-stream; charset=utf-8",
+            "Cache-Control": "no-cache, no-transform",
+            Connection: "keep-alive",
+          },
+        });
+      },
+    },
+  },
+});

@@ -1,0 +1,35 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Aurelius",
+      "hasCanvas": false,
+      "bodyTextLen": 1392,
+      "bodyTextHash": "7259d331e56dd098e3e68e77fe1b411254d7081cd667c13a49cbe08b09b3f74d",
+      "bodyTextPrefix": "THE CHAMBER Marcus Aurelius Emperor · philosopher · 161–180 He k",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Aurelius",
+      "hasCanvas": false,
+      "bodyTextLen": 648,
+      "bodyTextHash": "b791acb83296c37a481ba0d3bc74474bff9932a6b0581cc7a751708926b59077",
+      "bodyTextPrefix": "AURELIUS Marcus Aurelius Sign in MARCUS You have found me at my ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
