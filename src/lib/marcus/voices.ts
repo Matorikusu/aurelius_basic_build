@@ -4,18 +4,11 @@ export type VoiceOption = {
   quality: string;
 };
 
-/** Voices chosen for a philosopher-emperor — grave, warm, or imperial. */
 export const VOICES: VoiceOption[] = [
-  { id: "lux", name: "Lux", quality: "Grounded and quietly wise — the private notebook" },
-  { id: "orion", name: "Orion", quality: "Rich, cinematic — the page read aloud" },
-  { id: "leo", name: "Leo", quality: "Authoritative — the emperor at the camp table" },
-  { id: "naksh", name: "Naksh", quality: "Warm and thoughtful — a teacher of philosophy" },
+  { id: "lux", name: "Lux", quality: "Grounded and quietly wise" },
+  { id: "orion", name: "Orion", quality: "Rich, cinematic" },
   { id: "altair", name: "Altair", quality: "Refined, even, imperial" },
   { id: "perseus", name: "Perseus", quality: "Steady and trustworthy" },
-  { id: "atlas", name: "Atlas", quality: "Commanding, a little severe" },
-  { id: "aurora", name: "Aurora", quality: "Serene and unhurried" },
-  { id: "sal", name: "Sal", quality: "Smooth, balanced counsel" },
-  { id: "rigel", name: "Rigel", quality: "Precise, without ornament" },
 ];
 
 export const DEFAULT_VOICE = "lux";
@@ -25,4 +18,8 @@ export const VOICE_SAMPLE =
 
 export function isKnownVoice(id: string): boolean {
   return VOICES.some((v) => v.id === id);
+}
+
+export function sanitizeVoice(id: string | undefined | null): string {
+  return id && isKnownVoice(id) ? id : DEFAULT_VOICE;
 }

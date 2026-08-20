@@ -14,6 +14,7 @@ var install_page_default = "<!DOCTYPE html>\n<html lang=\"en\" class=\"device-de
 var grokOgIdentity = { "site": {
 	"title": "Aurelius",
 	"card": "custom",
+	"color": "000000",
 	"image": "/og.jpg"
 } };
 //#endregion

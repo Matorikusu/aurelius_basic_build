@@ -10,12 +10,12 @@ export function AuthChip() {
   useEffect(() => setReady(true), []);
 
   if (!ready || isPending) {
-    return <div className="h-9 w-20 shrink-0 animate-pulse rounded-md bg-parchment/10" />;
+    return <div className="h-9 w-20 shrink-0 animate-pulse rounded-full bg-fg/10" />;
   }
 
   if (!user) {
     return (
-      <Button asChild variant="outline" size="sm" className="font-display tracking-wide">
+      <Button asChild variant="outline" size="sm">
         <Link to="/login">Sign in</Link>
       </Button>
     );
@@ -28,17 +28,17 @@ export function AuthChip() {
         <img
           src={user.profileImageUrl}
           alt=""
-          className="size-8 rounded-full object-cover outline-solid outline-1 -outline-offset-1 outline-gold/25"
+          className="size-8 rounded-full object-cover ring-1 ring-line"
         />
       ) : (
-        <span className="grid size-8 place-items-center rounded-full bg-gold/20 font-display text-xs text-gold">
+        <span className="grid size-8 place-items-center rounded-full bg-elevated text-xs font-medium text-fg">
           {label.charAt(0).toUpperCase()}
         </span>
       )}
       <button
         type="button"
         onClick={() => void signOut()}
-        className="hidden font-serif text-xs text-muted underline-offset-4 hover:text-parchment hover:underline sm:inline"
+        className="hidden text-xs text-muted underline-offset-4 hover:text-fg hover:underline sm:inline"
       >
         Sign out
       </button>

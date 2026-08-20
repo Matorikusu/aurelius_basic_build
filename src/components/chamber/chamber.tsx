@@ -236,7 +236,7 @@ export function Chamber() {
       return;
     }
     if (!navigator.mediaDevices?.getUserMedia) {
-      toast.error("This chamber cannot hear you here.");
+      toast.error("This device cannot hear you here.");
       return;
     }
     try {
@@ -275,21 +275,14 @@ export function Chamber() {
   const speaking = speakingId !== null;
 
   return (
-    <div className="relative min-h-dvh bg-ink text-parchment">
-      <div
-        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35"
-        style={{ backgroundImage: "url(/chamber.jpg)" }}
-      />
-      <div className="chamber-veil pointer-events-none absolute inset-0" />
-      <div className="grain absolute inset-0 opacity-40" />
-
+    <div className="relative min-h-dvh bg-bg text-fg">
       <div className="relative mx-auto flex min-h-dvh max-w-6xl">
-        <aside className="hidden w-80 shrink-0 flex-col border-r border-gold/15 lg:flex">
-          <div className="p-5">
+        <aside className="hidden w-80 shrink-0 flex-col border-r border-line lg:flex">
+          <div className="p-8">
             <Portrait speaking={speaking} />
             <IdentityBlock />
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-8">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8">
             <VoiceManner onPreviewVoice={(id) => void previewVoice(id)} previewingId={previewingId} />
           </div>
         </aside>
@@ -300,11 +293,11 @@ export function Chamber() {
               <Portrait speaking={speaking} compact />
             </div>
             <div className="min-w-0 flex-1 lg:hidden">
-              <p className="font-display text-xs tracking-widest text-gold uppercase">Aurelius</p>
-              <p className="truncate font-serif text-sm text-parchment">Marcus Aurelius</p>
+              <p className="text-xs font-medium tracking-widest text-muted uppercase">Aurelius</p>
+              <p className="truncate text-sm font-medium text-fg">Marcus Aurelius</p>
             </div>
             <div className="hidden flex-1 lg:block">
-              <p className="font-display text-xs tracking-widest text-gold uppercase">A conversation</p>
+              <p className="text-xs font-medium tracking-widest text-muted uppercase">A conversation</p>
             </div>
             <Button
               type="button"
@@ -347,12 +340,11 @@ export function Chamber() {
                 speakingId={speakingId}
                 onSpeak={(id, text) => void speak(id, text)}
                 onStopSpeak={stopSpeak}
-                onSuggest={(text) => void send(text)}
               />
             </div>
           </div>
 
-          <div className="border-t border-gold/10 bg-ink/70 px-4 py-3 backdrop-blur-sm lg:px-10">
+          <div className="border-t border-line bg-bg/80 px-4 py-3 backdrop-blur-sm lg:px-10">
             <div className="mx-auto max-w-2xl">
               <Composer
                 value={draft}
@@ -362,7 +354,7 @@ export function Chamber() {
                 recording={recording}
                 busy={streaming}
               />
-              <p className="mt-2 text-center font-serif text-xs text-muted">
+              <p className="mt-2 text-center text-xs text-muted">
                 He answers from the second century. Sign in to keep the papers.
               </p>
             </div>
@@ -372,12 +364,15 @@ export function Chamber() {
 
       <Drawer.Root open={settingsOpen} onOpenChange={setSettingsOpen}>
         <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 z-40 bg-ink/70" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-2xl bg-surface">
-            <div className="mx-auto mt-3 h-1 w-12 rounded-full bg-gold/30" />
-            <Drawer.Title className="px-5 pt-4 font-display text-sm tracking-[0.2em] text-gold uppercase">
+          <Drawer.Overlay className="fixed inset-0 z-40 bg-bg/70" />
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-3xl bg-surface">
+            <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-elevated" />
+            <Drawer.Title className="px-5 pt-4 text-sm font-medium tracking-widest text-muted uppercase">
               Voice & manner
             </Drawer.Title>
+            <Drawer.Description className="sr-only">
+              Choose how Marcus speaks and which voice he uses.
+            </Drawer.Description>
             <div className="overflow-y-auto px-5 pt-4 pb-10">
               <VoiceManner onPreviewVoice={(id) => void previewVoice(id)} previewingId={previewingId} />
             </div>
@@ -387,26 +382,25 @@ export function Chamber() {
 
       <Drawer.Root open={historyOpen} onOpenChange={setHistoryOpen}>
         <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 z-40 bg-ink/70" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex max-h-[80dvh] flex-col rounded-t-2xl bg-surface lg:inset-y-0 lg:right-0 lg:left-auto lg:h-full lg:w-96 lg:rounded-none lg:rounded-l-2xl">
-            <div className="mx-auto mt-3 h-1 w-12 rounded-full bg-gold/30 lg:hidden" />
-            <Drawer.Title className="px-5 pt-4 font-display text-sm tracking-[0.2em] text-gold uppercase">
+          <Drawer.Overlay className="fixed inset-0 z-40 bg-bg/70" />
+          <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 flex max-h-[80dvh] flex-col rounded-t-3xl bg-surface lg:inset-y-0 lg:right-0 lg:left-auto lg:h-full lg:w-96 lg:rounded-none lg:rounded-l-3xl">
+            <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-elevated lg:hidden" />
+            <Drawer.Title className="px-5 pt-4 text-sm font-medium tracking-widest text-muted uppercase">
               Papers
             </Drawer.Title>
+            <Drawer.Description className="sr-only">Saved conversations.</Drawer.Description>
             <ul className="overflow-y-auto px-3 py-3">
               {history.length === 0 ? (
-                <li className="px-2 py-6 text-center font-serif text-sm text-muted">
-                  No conversations kept yet.
-                </li>
+                <li className="px-2 py-6 text-center text-sm text-muted">No conversations kept yet.</li>
               ) : (
                 history.map((c) => (
                   <li key={c.id} className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => void openConversation(c.id)}
-                      className="min-w-0 flex-1 rounded-md px-3 py-2.5 text-left hover:bg-parchment/5"
+                      className="min-w-0 flex-1 rounded-xl px-3 py-2.5 text-left hover:bg-elevated"
                     >
-                      <span className="block truncate font-serif text-sm text-parchment">{c.title}</span>
+                      <span className="block truncate text-sm text-fg">{c.title}</span>
                     </button>
                     <Button
                       type="button"

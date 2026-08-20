@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { DEFAULT_MANNER, type ChatMessage, type Manner, type Register } from "@/lib/marcus/types";
-import { DEFAULT_VOICE } from "@/lib/marcus/voices";
+import { sanitizeVoice } from "@/lib/marcus/voices";
 import { sanitizeManner } from "@/lib/marcus/prompt";
 
 export type ConversationSummary = {
@@ -84,7 +84,7 @@ export const loadConversation = createServerFn({ method: "POST" })
     return {
       id: row.id,
       title: row.title,
-      voiceId: row.voice_id,
+      voiceId: sanitizeVoice(row.voice_id),
       manner,
       messages: msgs
         .filter((m) => m.role === "user" || m.role === "assistant")
@@ -113,7 +113,7 @@ export const saveTurn = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const sql = await getSql();
     const mannerJson = JSON.stringify(sanitizeManner(data.manner));
-    const voiceId = data.voiceId.slice(0, 40);
+    const voiceId = sanitizeVoice(data.voiceId);
     const title = titleFrom(data.titleSource);
     const existing = await sql<{ id: string }>`
       select id from conversations where id = ${data.conversationId} and user_id = ${context.userId} limit 1
@@ -168,7 +168,7 @@ export const loadPrefs = createServerFn({ method: "GET" })
     const register: Register =
       r.register === "journal" || r.register === "emperor" ? r.register : "counsel";
     return {
-      voiceId: r.voice_id || DEFAULT_VOICE,
+      voiceId: sanitizeVoice(r.voice_id),
       autoSpeak: Boolean(r.auto_speak),
       manner: sanitizeManner({
         register,
@@ -184,7 +184,7 @@ export const savePrefs = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const sql = await getSql();
     const manner = sanitizeManner(data.manner);
-    const voiceId = data.voiceId.slice(0, 40);
+    const voiceId = sanitizeVoice(data.voiceId);
     await sql`
       insert into marcus_prefs (user_id, voice_id, register, austerity, brevity, auto_speak)
       values (${context.userId}, ${voiceId}, ${manner.register}, ${manner.austerity}, ${manner.brevity}, ${data.autoSpeak})

@@ -3,16 +3,16 @@ import { o as require_jsx_runtime, s as require_react } from "../_libs/@radix-ui
 import { _ as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { a as getServerFnById, i as TSS_SERVER_FUNCTION, r as createServerFn } from "./ssr.mjs";
 import { i as signOut, t as authClient } from "./client-sGid3STf.mjs";
-import { a as VOICE_SAMPLE, i as VOICES, n as GREETING, r as SUGGESTIONS, t as DEFAULT_MANNER } from "./prompt-DbjQ97_N.mjs";
-import { t as authMiddleware } from "./middleware-Cmdy2VgD.mjs";
-import { n as cn, r as uid, t as Button } from "./button-CVuMJdwT.mjs";
+import { f as sanitizeVoice, i as VOICE_SAMPLE, n as GREETING, r as VOICES, t as DEFAULT_MANNER } from "./prompt-C-qguUIy.mjs";
+import { t as authMiddleware } from "./middleware-G8dfOQGf.mjs";
+import { n as cn, r as uid, t as Button } from "./button-cgetco9e.mjs";
 import { a as SlidersHorizontal, c as Mic, i as Square, l as LoaderCircle, o as Send, r as Trash2, s as Plus, t as Volume2, u as History } from "../_libs/lucide-react.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { t as Drawer } from "../_libs/vaul.mjs";
 import { i as SliderTrack, n as SliderRange, r as SliderThumb, t as Slider$1 } from "../_libs/@radix-ui/react-slider+[...].mjs";
 import { n as SwitchThumb, t as Switch$1 } from "../_libs/radix-ui__react-switch.mjs";
 import { n as create, t as persist } from "../_libs/zustand.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-Bg6xQWnF.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-iTGmf9rw.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 /**
@@ -62,12 +62,11 @@ function AuthChip() {
 	const { user, isPending } = useCurrentUserState();
 	const [ready, setReady] = (0, import_react.useState)(false);
 	(0, import_react.useEffect)(() => setReady(true), []);
-	if (!ready || isPending) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-9 w-20 shrink-0 animate-pulse rounded-md bg-parchment/10" });
+	if (!ready || isPending) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-9 w-20 shrink-0 animate-pulse rounded-full bg-fg/10" });
 	if (!user) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
 		asChild: true,
 		variant: "outline",
 		size: "sm",
-		className: "font-display tracking-wide",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
 			to: "/login",
 			children: "Sign in"
@@ -79,14 +78,14 @@ function AuthChip() {
 		children: [user.profileImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
 			src: user.profileImageUrl,
 			alt: "",
-			className: "size-8 rounded-full object-cover outline-solid outline-1 -outline-offset-1 outline-gold/25"
+			className: "size-8 rounded-full object-cover ring-1 ring-line"
 		}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-			className: "grid size-8 place-items-center rounded-full bg-gold/20 font-display text-xs text-gold",
+			className: "grid size-8 place-items-center rounded-full bg-elevated text-xs font-medium text-fg",
 			children: label.charAt(0).toUpperCase()
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 			type: "button",
 			onClick: () => void signOut(),
-			className: "hidden font-serif text-xs text-muted underline-offset-4 hover:text-parchment hover:underline sm:inline",
+			className: "hidden text-xs text-muted underline-offset-4 hover:text-fg hover:underline sm:inline",
 			children: "Sign out"
 		})]
 	});
@@ -115,7 +114,7 @@ function Composer({ value, onChange, onSend, onMicToggle, recording, busy, disab
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
 				type: "button",
-				variant: recording ? "gold" : "outline",
+				variant: recording ? "solid" : "outline",
 				size: "icon",
 				onClick: onMicToggle,
 				disabled: busy,
@@ -137,8 +136,8 @@ function Composer({ value, onChange, onSend, onMicToggle, recording, busy, disab
 				onChange: (e) => onChange(e.target.value),
 				onKeyDown,
 				disabled: busy || recording,
-				placeholder: recording ? "Listening…" : "Speak, then — what disturbs the mind?",
-				className: cn("max-h-40 min-h-11 flex-1 resize-none rounded-lg bg-surface/90 px-4 py-2.5", "font-serif text-sm leading-relaxed text-parchment placeholder:text-muted/80", "shadow-[var(--shadow-border)] outline-none", "focus:shadow-[var(--shadow-border-hover)]", "disabled:opacity-60")
+				placeholder: recording ? "Listening…" : "Speak of what disturbs the mind",
+				className: cn("max-h-40 min-h-11 flex-1 resize-none rounded-2xl bg-surface px-4 py-2.5", "text-sm leading-relaxed text-fg placeholder:text-muted", "shadow-[var(--shadow-border)] outline-none", "focus:shadow-[var(--shadow-border-hover)]", "disabled:opacity-60")
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
 				type: "submit",
@@ -152,67 +151,48 @@ function Composer({ value, onChange, onSend, onMicToggle, recording, busy, disab
 }
 function Portrait({ speaking, compact }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: cn("relative overflow-hidden", compact ? "size-11 rounded-full" : "aspect-[2/3] w-full rounded-lg"),
-		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-				src: "/marcus.jpg",
-				alt: "Marcus Aurelius",
-				className: cn("size-full object-cover outline-solid outline-1 -outline-offset-1 outline-gold/20", compact ? "face-crop" : "portrait-crop")
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: cn("flicker pointer-events-none absolute inset-0 candle-glow", speaking && "opacity-80") }),
-			speaking ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "speak-ring pointer-events-none absolute inset-0 rounded-[inherit]" }) : null
-		]
+		className: cn("relative overflow-hidden rounded-full bg-surface", compact ? "size-11" : "mx-auto aspect-square w-40"),
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+			src: "/marcus.jpg",
+			alt: "Marcus Aurelius",
+			className: cn("size-full object-cover", compact ? "face-crop" : "portrait-crop")
+		}), speaking ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "speak-ring pointer-events-none absolute inset-0 rounded-full" }) : null]
 	});
 }
 function IdentityBlock() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "mt-4",
+		className: "mt-5 text-center",
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "font-display text-xs tracking-widest text-gold uppercase",
-				children: "The Chamber"
+				className: "text-xs font-medium tracking-widest text-muted uppercase",
+				children: "Aurelius"
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-				className: "mt-1 font-display text-2xl leading-tight text-parchment",
+				className: "mt-1 text-2xl leading-tight font-semibold tracking-tight text-fg",
 				children: "Marcus Aurelius"
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "mt-1 font-serif text-sm text-muted",
+				className: "mt-1 text-sm text-muted",
 				children: "Emperor · philosopher · 161–180"
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "mt-3 font-serif text-sm leading-relaxed text-parchment/75",
+				className: "mt-4 text-sm leading-relaxed text-muted",
 				children: "He knows his own age, his own notes, and the Stoic art of judgment. He does not know yours. He will reason anyway."
 			})
 		]
 	});
 }
-function Thread({ messages, streaming, speakingId, onSpeak, onStopSpeak, onSuggest }) {
+function Thread({ messages, streaming, speakingId, onSpeak, onStopSpeak }) {
 	const empty = messages.length === 0;
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 		className: "flex flex-col gap-6",
-		children: empty ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AssistantBubble, {
+		children: empty ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AssistantBubble, {
 			text: GREETING,
 			speaking: speakingId === "greeting",
 			streaming: false,
 			onSpeak: () => onSpeak("greeting", GREETING),
 			onStopSpeak
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: "grid grid-cols-1 gap-2 sm:grid-cols-2",
-			children: SUGGESTIONS.map((s, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-				type: "button",
-				onClick: () => onSuggest(s.text),
-				className: cn("enter rounded-lg bg-surface/80 px-4 py-2.5 text-left shadow-[var(--shadow-border)]", "transition-[box-shadow,transform] duration-150 hover:shadow-[var(--shadow-border-hover)]", "active:scale-[0.96]"),
-				style: { animationDelay: `${120 + i * 80}ms` },
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "block font-display text-sm text-gold",
-					children: s.label
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "mt-1 block font-serif text-xs leading-relaxed text-muted line-clamp-2",
-					children: s.text
-				})]
-			}, s.label))
-		})] }) : messages.map((m) => m.role === "user" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserBubble, { text: m.content }, m.id) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AssistantBubble, {
+		}) : messages.map((m) => m.role === "user" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserBubble, { text: m.content }, m.id) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AssistantBubble, {
 			text: m.content,
 			speaking: speakingId === m.id,
 			streaming: streaming && m === messages[messages.length - 1],
@@ -225,7 +205,7 @@ function UserBubble({ text }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 		className: "flex justify-end",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-			className: "max-w-lg rounded-lg bg-gold/10 px-4 py-3 font-serif text-sm leading-relaxed text-parchment",
+			className: "max-w-lg rounded-2xl bg-elevated px-4 py-3 text-sm leading-relaxed text-fg",
 			children: text
 		})
 	});
@@ -236,38 +216,38 @@ function AssistantBubble({ text, speaking, streaming, onSpeak, onStopSpeak }) {
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
 			src: "/marcus.jpg",
 			alt: "",
-			className: "mt-1 size-8 shrink-0 rounded-full object-cover face-crop outline outline-1 -outline-offset-1 outline-gold/25"
+			className: "mt-0.5 size-8 shrink-0 rounded-full object-cover face-crop ring-1 ring-line"
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "min-w-0 flex-1",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					className: "font-display text-xs tracking-widest text-gold uppercase",
+					className: "text-xs font-medium tracking-widest text-muted uppercase",
 					children: "Marcus"
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-					className: "mt-1 font-serif text-base leading-relaxed text-parchment whitespace-pre-wrap",
+					className: "mt-1 text-base leading-relaxed text-fg whitespace-pre-wrap",
 					children: [
 						text,
 						streaming && !text ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 							className: "text-muted",
 							children: "He considers…"
 						}) : null,
-						streaming ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ml-0.5 inline-block h-4 w-px translate-y-0.5 bg-gold/80" }) : null
+						streaming ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ml-0.5 inline-block h-4 w-px translate-y-0.5 bg-fg/70" }) : null
 					]
 				}),
 				!streaming && text ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
 					type: "button",
 					variant: "ghost",
 					size: "sm",
-					className: "mt-1 h-8 px-2 text-muted hover:text-gold",
+					className: "mt-1 h-8 px-2 text-muted hover:text-fg",
 					onClick: speaking ? onStopSpeak : onSpeak,
 					"aria-label": speaking ? "Stop speaking" : "Speak this reply",
 					children: [speaking ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Square, { className: "size-3.5 fill-current" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Volume2, { className: "size-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "font-serif text-xs",
+						className: "text-xs",
 						children: speaking ? "Silence" : "Hear him"
 					})]
 				}) : streaming ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-					className: "mt-2 inline-flex items-center gap-1.5 font-serif text-xs text-muted",
+					className: "mt-2 inline-flex items-center gap-1.5 text-xs text-muted",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-3 animate-spin" }), "Writing"]
 				}) : null
 			]
@@ -284,9 +264,9 @@ function Slider({ value, onChange, min = 0, max = 100, step = 1, ariaLabel, clas
 		onValueChange: (v) => onChange(v[0] ?? value),
 		"aria-label": ariaLabel,
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SliderTrack, {
-			className: "relative h-1 w-full grow overflow-hidden rounded-full bg-gold/20",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SliderRange, { className: "absolute h-full bg-gold" })
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SliderThumb, { className: "block size-4 rounded-full bg-parchment shadow-[0_0_0_4px_rgb(18_14_10_/_0.5)] transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold" })]
+			className: "relative h-1 w-full grow overflow-hidden rounded-full bg-elevated",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SliderRange, { className: "absolute h-full bg-fg" })
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SliderThumb, { className: "block size-4 rounded-full bg-fg shadow-[0_0_0_4px_rgb(0_0_0_/_0.5)] transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg" })]
 	});
 }
 function Switch({ checked, onCheckedChange, ariaLabel }) {
@@ -294,15 +274,15 @@ function Switch({ checked, onCheckedChange, ariaLabel }) {
 		checked,
 		onCheckedChange,
 		"aria-label": ariaLabel,
-		className: cn("relative h-7 w-12 shrink-0 rounded-full transition-colors duration-150", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60", checked ? "bg-gold" : "bg-parchment/15"),
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SwitchThumb, { className: cn("block size-5 translate-x-1 rounded-full bg-parchment transition-transform duration-150", "data-[state=checked]:translate-x-6 data-[state=checked]:bg-ink") })
+		className: cn("relative h-7 w-11 shrink-0 rounded-full transition-colors duration-150", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/40", checked ? "bg-fg" : "bg-elevated"),
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SwitchThumb, { className: cn("block size-5 translate-x-1 rounded-full bg-muted transition-transform duration-150", "data-[state=checked]:translate-x-5 data-[state=checked]:bg-bg") })
 	});
 }
 var usePrefs = create()(persist((set) => ({
 	voiceId: "lux",
 	manner: DEFAULT_MANNER,
 	autoSpeak: false,
-	setVoice: (voiceId) => set({ voiceId }),
+	setVoice: (voiceId) => set({ voiceId: sanitizeVoice(voiceId) }),
 	setRegister: (register) => set((s) => ({ manner: {
 		...s.manner,
 		register
@@ -317,11 +297,16 @@ var usePrefs = create()(persist((set) => ({
 	} })),
 	setAutoSpeak: (autoSpeak) => set({ autoSpeak }),
 	hydrate: (p) => set({
-		voiceId: p.voiceId,
+		voiceId: sanitizeVoice(p.voiceId),
 		manner: p.manner,
 		autoSpeak: p.autoSpeak
 	})
-}), { name: "aurelius.prefs" }));
+}), {
+	name: "aurelius.prefs",
+	onRehydrateStorage: () => (state) => {
+		if (state) state.voiceId = sanitizeVoice(state.voiceId);
+	}
+}));
 var REGISTERS = [
 	{
 		id: "journal",
@@ -348,103 +333,109 @@ function VoiceManner({ onPreviewVoice, previewingId }) {
 	const setAusterity = usePrefs((s) => s.setAusterity);
 	const setBrevity = usePrefs((s) => s.setBrevity);
 	const setAutoSpeak = usePrefs((s) => s.setAutoSpeak);
+	const activeRegister = REGISTERS.find((r) => r.id === manner.register);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "flex flex-col gap-7",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-				className: "font-display text-xs tracking-[0.22em] text-gold uppercase",
-				children: "Manner"
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "mt-1 font-serif text-sm text-muted",
-				children: "How he thinks on the page."
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				className: "mt-3 grid grid-cols-3 gap-1 rounded-lg bg-ink/50 p-1",
-				children: REGISTERS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-					type: "button",
-					onClick: () => setRegister(r.id),
-					className: cn("rounded-md px-2 py-2 text-center transition-colors duration-150", manner.register === r.id ? "bg-gold/15 text-gold" : "text-muted hover:text-parchment"),
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "block font-display text-xs tracking-wide",
+		className: "flex flex-col gap-8",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+					className: "text-xs font-medium tracking-widest text-muted uppercase",
+					children: "Manner"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-1 text-sm text-muted",
+					children: "How he thinks on the page."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: "mt-3 grid grid-cols-3 gap-1 rounded-full bg-surface p-1",
+					children: REGISTERS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						type: "button",
+						onClick: () => setRegister(r.id),
+						className: cn("rounded-full px-2 py-2 text-center text-xs font-medium transition-colors duration-150", manner.register === r.id ? "bg-elevated text-fg" : "text-muted hover:text-fg"),
 						children: r.label
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "mt-0.5 block text-[10px] leading-tight text-muted",
-						children: r.hint
+					}, r.id))
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-2 text-center text-xs text-muted",
+					children: activeRegister?.hint
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-5",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex justify-between text-xs text-muted",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Gentle" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Austere" })]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Slider, {
+						value: manner.austerity,
+						onChange: setAusterity,
+						ariaLabel: "Austerity of counsel"
 					})]
-				}, r.id))
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "mt-5",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex justify-between font-serif text-xs text-muted",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Gentle" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Austere" })]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Slider, {
-					value: manner.austerity,
-					onChange: setAusterity,
-					ariaLabel: "Austerity of counsel"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-3",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex justify-between text-xs text-muted",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Discourse" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Aphorism" })]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Slider, {
+						value: manner.brevity,
+						onChange: setBrevity,
+						ariaLabel: "Brevity of speech"
+					})]
+				})
+			] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "flex items-center justify-between gap-3",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+					className: "text-xs font-medium tracking-widest text-muted uppercase",
+					children: "Voice"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-1 text-sm text-muted",
+					children: "The instrument, not the man."
+				})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "flex items-center gap-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						className: "text-xs text-muted",
+						children: "Speak replies"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Switch, {
+						checked: autoSpeak,
+						onCheckedChange: setAutoSpeak,
+						ariaLabel: "Speak his replies aloud"
+					})]
 				})]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "mt-3",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex justify-between font-serif text-xs text-muted",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Discourse" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Aphorism" })]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Slider, {
-					value: manner.brevity,
-					onChange: setBrevity,
-					ariaLabel: "Brevity of speech"
-				})]
-			})
-		] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "flex items-center justify-between gap-3",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-				className: "font-display text-xs tracking-[0.22em] text-gold uppercase",
-				children: "Voice"
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "mt-1 font-serif text-sm text-muted",
-				children: "The instrument, not the man."
-			})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "flex items-center gap-2",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "font-serif text-xs text-muted",
-					children: "Speak replies"
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Switch, {
-					checked: autoSpeak,
-					onCheckedChange: setAutoSpeak,
-					ariaLabel: "Speak his replies aloud"
-				})]
-			})]
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-			className: "mt-3 flex flex-col gap-1",
-			children: VOICES.map((v) => {
-				const active = v.id === voiceId;
-				return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: cn("flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors duration-150", active ? "bg-gold/12" : "hover:bg-parchment/5"),
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-						type: "button",
-						onClick: () => setVoice(v.id),
-						className: "min-w-0 flex-1 text-left",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							className: cn("block font-display text-sm", active ? "text-gold" : "text-parchment"),
-							children: v.name
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							className: "block truncate font-serif text-xs text-muted",
-							children: v.quality
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+				className: "mt-3 flex flex-col gap-1",
+				children: VOICES.map((v) => {
+					const active = v.id === voiceId;
+					return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: cn("flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors duration-150", active ? "bg-elevated" : "hover:bg-surface"),
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							type: "button",
+							onClick: () => setVoice(v.id),
+							className: "min-w-0 flex-1 text-left",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: cn("block text-sm font-medium", active ? "text-fg" : "text-fg/80"),
+								children: v.name
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "block truncate text-xs text-muted",
+								children: v.quality
+							})]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+							type: "button",
+							variant: "ghost",
+							size: "icon-sm",
+							className: "shrink-0 text-muted hover:text-fg",
+							"aria-label": `Preview ${v.name}`,
+							onClick: () => onPreviewVoice(v.id),
+							disabled: previewingId === v.id,
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Volume2, { className: "size-4" })
 						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-						type: "button",
-						variant: "ghost",
-						size: "icon-sm",
-						className: "shrink-0 text-gold",
-						"aria-label": `Preview ${v.name}`,
-						onClick: () => onPreviewVoice(v.id),
-						disabled: previewingId === v.id,
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Volume2, { className: "size-4" })
-					})]
-				}) }, v.id);
+					}) }, v.id);
+				})
+			})] }),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "pt-2 text-center text-xs leading-relaxed text-muted/70",
+				children: "Created by S Whorton — Matorikusu 2026 — All rights reserved."
 			})
-		})] })]
+		]
 	});
 }
 var current = null;
@@ -793,7 +784,7 @@ function Chamber() {
 			return;
 		}
 		if (!navigator.mediaDevices?.getUserMedia) {
-			toast.error("This chamber cannot hear you here.");
+			toast.error("This device cannot hear you here.");
 			return;
 		}
 		try {
@@ -828,23 +819,17 @@ function Chamber() {
 	}
 	const speaking = speakingId !== null;
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "relative min-h-dvh bg-ink text-parchment",
+		className: "relative min-h-dvh bg-bg text-fg",
 		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				className: "pointer-events-none absolute inset-0 bg-cover bg-center opacity-35",
-				style: { backgroundImage: "url(/chamber.jpg)" }
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "chamber-veil pointer-events-none absolute inset-0" }),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "grain absolute inset-0 opacity-40" }),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				className: "relative mx-auto flex min-h-dvh max-w-6xl",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", {
-					className: "hidden w-80 shrink-0 flex-col border-r border-gold/15 lg:flex",
+					className: "hidden w-80 shrink-0 flex-col border-r border-line lg:flex",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "p-5",
+						className: "p-8",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Portrait, { speaking }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(IdentityBlock, {})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						className: "min-h-0 flex-1 overflow-y-auto px-5 pb-8",
+						className: "min-h-0 flex-1 overflow-y-auto px-6 pb-8",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VoiceManner, {
 							onPreviewVoice: (id) => void previewVoice(id),
 							previewingId
@@ -866,17 +851,17 @@ function Chamber() {
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "min-w-0 flex-1 lg:hidden",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-										className: "font-display text-xs tracking-widest text-gold uppercase",
+										className: "text-xs font-medium tracking-widest text-muted uppercase",
 										children: "Aurelius"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-										className: "truncate font-serif text-sm text-parchment",
+										className: "truncate text-sm font-medium text-fg",
 										children: "Marcus Aurelius"
 									})]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 									className: "hidden flex-1 lg:block",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-										className: "font-display text-xs tracking-widest text-gold uppercase",
+										className: "text-xs font-medium tracking-widest text-muted uppercase",
 										children: "A conversation"
 									})
 								}),
@@ -918,13 +903,12 @@ function Chamber() {
 									streaming,
 									speakingId,
 									onSpeak: (id, text) => void speak(id, text),
-									onStopSpeak: stopSpeak,
-									onSuggest: (text) => void send(text)
+									onStopSpeak: stopSpeak
 								})
 							})
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "border-t border-gold/10 bg-ink/70 px-4 py-3 backdrop-blur-sm lg:px-10",
+							className: "border-t border-line bg-bg/80 px-4 py-3 backdrop-blur-sm lg:px-10",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "mx-auto max-w-2xl",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Composer, {
@@ -935,7 +919,7 @@ function Chamber() {
 									recording,
 									busy: streaming
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									className: "mt-2 text-center font-serif text-xs text-muted",
+									className: "mt-2 text-center text-xs text-muted",
 									children: "He answers from the second century. Sign in to keep the papers."
 								})]
 							})
@@ -946,13 +930,17 @@ function Chamber() {
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Root, {
 				open: settingsOpen,
 				onOpenChange: setSettingsOpen,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Drawer.Portal, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Overlay, { className: "fixed inset-0 z-40 bg-ink/70" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Drawer.Content, {
-					className: "fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-2xl bg-surface",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Drawer.Portal, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Overlay, { className: "fixed inset-0 z-40 bg-bg/70" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Drawer.Content, {
+					className: "fixed inset-x-0 bottom-0 z-50 flex max-h-[86dvh] flex-col rounded-t-3xl bg-surface",
 					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mx-auto mt-3 h-1 w-12 rounded-full bg-gold/30" }),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mx-auto mt-3 h-1 w-10 rounded-full bg-elevated" }),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Title, {
-							className: "px-5 pt-4 font-display text-sm tracking-[0.2em] text-gold uppercase",
+							className: "px-5 pt-4 text-sm font-medium tracking-widest text-muted uppercase",
 							children: "Voice & manner"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Description, {
+							className: "sr-only",
+							children: "Choose how Marcus speaks and which voice he uses."
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 							className: "overflow-y-auto px-5 pt-4 pb-10",
@@ -967,27 +955,31 @@ function Chamber() {
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Root, {
 				open: historyOpen,
 				onOpenChange: setHistoryOpen,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Drawer.Portal, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Overlay, { className: "fixed inset-0 z-40 bg-ink/70" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Drawer.Content, {
-					className: "fixed inset-x-0 bottom-0 z-50 flex max-h-[80dvh] flex-col rounded-t-2xl bg-surface lg:inset-y-0 lg:right-0 lg:left-auto lg:h-full lg:w-96 lg:rounded-none lg:rounded-l-2xl",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Drawer.Portal, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Overlay, { className: "fixed inset-0 z-40 bg-bg/70" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Drawer.Content, {
+					className: "fixed inset-x-0 bottom-0 z-50 flex max-h-[80dvh] flex-col rounded-t-3xl bg-surface lg:inset-y-0 lg:right-0 lg:left-auto lg:h-full lg:w-96 lg:rounded-none lg:rounded-l-3xl",
 					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mx-auto mt-3 h-1 w-12 rounded-full bg-gold/30 lg:hidden" }),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mx-auto mt-3 h-1 w-10 rounded-full bg-elevated lg:hidden" }),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Title, {
-							className: "px-5 pt-4 font-display text-sm tracking-[0.2em] text-gold uppercase",
+							className: "px-5 pt-4 text-sm font-medium tracking-widest text-muted uppercase",
 							children: "Papers"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Drawer.Description, {
+							className: "sr-only",
+							children: "Saved conversations."
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 							className: "overflow-y-auto px-3 py-3",
 							children: history.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", {
-								className: "px-2 py-6 text-center font-serif text-sm text-muted",
+								className: "px-2 py-6 text-center text-sm text-muted",
 								children: "No conversations kept yet."
 							}) : history.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
 								className: "flex items-center gap-1",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: () => void openConversation(c.id),
-									className: "min-w-0 flex-1 rounded-md px-3 py-2.5 text-left hover:bg-parchment/5",
+									className: "min-w-0 flex-1 rounded-xl px-3 py-2.5 text-left hover:bg-elevated",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "block truncate font-serif text-sm text-parchment",
+										className: "block truncate text-sm text-fg",
 										children: c.title
 									})
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {

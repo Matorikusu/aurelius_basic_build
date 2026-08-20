@@ -2,32 +2,32 @@ import { o as __toESM, r as __exportAll } from "../_runtime.mjs";
 import { o as require_jsx_runtime, s as require_react } from "../_libs/@radix-ui/react-collection+[...].mjs";
 import { f as createRouter, g as createRootRoute, h as createFileRoute, l as Scripts, m as lazyRouteComponent, p as Outlet, u as HeadContent, v as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { L as string, N as number, P as object, R as union, j as literal } from "../_libs/@better-auth/core+[...].mjs";
-import { d as maxTokensFor, f as sanitizeManner, n as GREETING, o as buildSystemPrompt, u as isKnownVoice } from "./prompt-DbjQ97_N.mjs";
-import { n as auth } from "./server-C2W-rMv8.mjs";
+import { a as buildSystemPrompt, d as sanitizeManner, l as isKnownVoice, n as GREETING, u as maxTokensFor } from "./prompt-C-qguUIy.mjs";
+import { n as auth } from "./server-DqSmkp4J.mjs";
 import { n as TriangleAlert } from "../_libs/lucide-react.mjs";
 import { t as Toaster } from "../_libs/sonner.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-BvJBEsdW.js
-var router_BvJBEsdW_exports = /* @__PURE__ */ __exportAll({ getRouter: () => getRouter });
+//#region node_modules/.nitro/vite/services/ssr/assets/router-BM2k6lNH.js
+var router_BM2k6lNH_exports = /* @__PURE__ */ __exportAll({ getRouter: () => getRouter });
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function AppErrorComponent({ error }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
-		className: "flex min-h-dvh flex-col items-center justify-center gap-3 bg-ink px-6 text-center text-parchment",
+		className: "flex min-h-dvh flex-col items-center justify-center gap-3 bg-bg px-6 text-center text-fg",
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-				className: "text-gold",
+				className: "text-muted",
 				"aria-hidden": "true",
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, {
 					className: "size-10",
-					strokeWidth: 2
+					strokeWidth: 1.75
 				})
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-				className: "font-display text-lg text-parchment",
+				className: "text-lg font-semibold tracking-tight text-fg",
 				children: "The line was cut"
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "max-w-md font-serif text-sm break-words text-muted",
+				className: "max-w-md text-sm break-words text-muted",
 				children: error.message || "An unexpected error occurred. Try reloading the page."
 			})
 		]
@@ -276,7 +276,7 @@ function PreviewHostBridge() {
 	}, [router]);
 	return null;
 }
-var styles_default = "/assets/styles-Dar_dc8W.css";
+var styles_default = "/assets/styles-B4OBPKOk.css";
 var APP_NAME = "Aurelius";
 var Route$6 = createRootRoute({
 	head: () => ({
@@ -289,7 +289,7 @@ var Route$6 = createRootRoute({
 			{ title: APP_NAME },
 			{
 				name: "theme-color",
-				content: "#120e0a"
+				content: "#000000"
 			},
 			{
 				name: "description",
@@ -313,7 +313,7 @@ var Route$6 = createRootRoute({
 			},
 			{
 				rel: "stylesheet",
-				href: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"
+				href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;1,14..32,400&display=swap"
 			},
 			{
 				rel: "stylesheet",
@@ -334,23 +334,23 @@ var Route$6 = createRootRoute({
 		className: "antialiased",
 		suppressHydrationWarning: true,
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("head", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(HeadContent, {}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("body", {
-			className: "bg-ink font-serif text-parchment",
+			className: "bg-bg font-sans text-fg",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreviewHostBridge, {}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AuthProvider, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {}) }),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
 					theme: "dark",
 					position: "top-center",
-					toastOptions: { className: "!bg-surface !text-parchment !border-gold/20 !font-serif !shadow-[0_0_0_1px_rgb(201_164_92_/_0.18)]" }
+					toastOptions: { className: "!bg-surface !text-fg !border-line !font-sans !shadow-[0_0_0_1px_rgb(255_255_255_/_0.08)]" }
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Scripts, {})
 			]
 		})]
 	})
 });
-var $$splitComponentImporter$1 = () => import("./routes-Bg6xQWnF.mjs");
+var $$splitComponentImporter$1 = () => import("./routes-iTGmf9rw.mjs");
 var Route$5 = createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter$1, "component") });
-var $$splitComponentImporter = () => import("./login-DsaIoeRV.mjs");
+var $$splitComponentImporter = () => import("./login-B3xK6MCQ.mjs");
 var Route$4 = createFileRoute("/login")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
 var Route$3 = createFileRoute("/api/chat")({ server: { handlers: { POST: async ({ request }) => {
 	const apiKey = process.env.XAI_API_KEY;
@@ -550,4 +550,4 @@ function getRouter() {
 	});
 }
 //#endregion
-export { getRouter, router_BvJBEsdW_exports as t };
+export { getRouter, router_BM2k6lNH_exports as t };

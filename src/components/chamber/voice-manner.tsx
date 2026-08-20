@@ -27,32 +27,31 @@ export function VoiceManner({ onPreviewVoice, previewingId }: Props) {
   const setAusterity = usePrefs((s) => s.setAusterity);
   const setBrevity = usePrefs((s) => s.setBrevity);
   const setAutoSpeak = usePrefs((s) => s.setAutoSpeak);
+  const activeRegister = REGISTERS.find((r) => r.id === manner.register);
 
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-8">
       <section>
-        <h2 className="font-display text-xs tracking-[0.22em] text-gold uppercase">Manner</h2>
-        <p className="mt-1 font-serif text-sm text-muted">How he thinks on the page.</p>
-        <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg bg-ink/50 p-1">
+        <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Manner</h2>
+        <p className="mt-1 text-sm text-muted">How he thinks on the page.</p>
+        <div className="mt-3 grid grid-cols-3 gap-1 rounded-full bg-surface p-1">
           {REGISTERS.map((r) => (
             <button
               key={r.id}
               type="button"
               onClick={() => setRegister(r.id)}
               className={cn(
-                "rounded-md px-2 py-2 text-center transition-colors duration-150",
-                manner.register === r.id
-                  ? "bg-gold/15 text-gold"
-                  : "text-muted hover:text-parchment",
+                "rounded-full px-2 py-2 text-center text-xs font-medium transition-colors duration-150",
+                manner.register === r.id ? "bg-elevated text-fg" : "text-muted hover:text-fg",
               )}
             >
-              <span className="block font-display text-xs tracking-wide">{r.label}</span>
-              <span className="mt-0.5 block text-[10px] leading-tight text-muted">{r.hint}</span>
+              {r.label}
             </button>
           ))}
         </div>
+        <p className="mt-2 text-center text-xs text-muted">{activeRegister?.hint}</p>
         <div className="mt-5">
-          <div className="flex justify-between font-serif text-xs text-muted">
+          <div className="flex justify-between text-xs text-muted">
             <span>Gentle</span>
             <span>Austere</span>
           </div>
@@ -63,7 +62,7 @@ export function VoiceManner({ onPreviewVoice, previewingId }: Props) {
           />
         </div>
         <div className="mt-3">
-          <div className="flex justify-between font-serif text-xs text-muted">
+          <div className="flex justify-between text-xs text-muted">
             <span>Discourse</span>
             <span>Aphorism</span>
           </div>
@@ -74,11 +73,11 @@ export function VoiceManner({ onPreviewVoice, previewingId }: Props) {
       <section>
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="font-display text-xs tracking-[0.22em] text-gold uppercase">Voice</h2>
-            <p className="mt-1 font-serif text-sm text-muted">The instrument, not the man.</p>
+            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Voice</h2>
+            <p className="mt-1 text-sm text-muted">The instrument, not the man.</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-serif text-xs text-muted">Speak replies</span>
+            <span className="text-xs text-muted">Speak replies</span>
             <Switch
               checked={autoSpeak}
               onCheckedChange={setAutoSpeak}
@@ -93,8 +92,8 @@ export function VoiceManner({ onPreviewVoice, previewingId }: Props) {
               <li key={v.id}>
                 <div
                   className={cn(
-                    "flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors duration-150",
-                    active ? "bg-gold/12" : "hover:bg-parchment/5",
+                    "flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors duration-150",
+                    active ? "bg-elevated" : "hover:bg-surface",
                   )}
                 >
                   <button
@@ -102,21 +101,16 @@ export function VoiceManner({ onPreviewVoice, previewingId }: Props) {
                     onClick={() => setVoice(v.id)}
                     className="min-w-0 flex-1 text-left"
                   >
-                    <span
-                      className={cn(
-                        "block font-display text-sm",
-                        active ? "text-gold" : "text-parchment",
-                      )}
-                    >
+                    <span className={cn("block text-sm font-medium", active ? "text-fg" : "text-fg/80")}>
                       {v.name}
                     </span>
-                    <span className="block truncate font-serif text-xs text-muted">{v.quality}</span>
+                    <span className="block truncate text-xs text-muted">{v.quality}</span>
                   </button>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="shrink-0 text-gold"
+                    className="shrink-0 text-muted hover:text-fg"
                     aria-label={`Preview ${v.name}`}
                     onClick={() => onPreviewVoice(v.id)}
                     disabled={previewingId === v.id}
@@ -129,6 +123,10 @@ export function VoiceManner({ onPreviewVoice, previewingId }: Props) {
           })}
         </ul>
       </section>
+
+      <p className="pt-2 text-center text-xs leading-relaxed text-muted/70">
+        Created by S Whorton — Matorikusu 2026 — All rights reserved.
+      </p>
     </div>
   );
 }

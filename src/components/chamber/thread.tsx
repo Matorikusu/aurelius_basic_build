@@ -1,7 +1,6 @@
 import { Loader2, Square, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GREETING, SUGGESTIONS, type ChatMessage } from "@/lib/marcus/types";
-import { cn } from "@/lib/utils";
+import { GREETING, type ChatMessage } from "@/lib/marcus/types";
 
 type Props = {
   messages: ChatMessage[];
@@ -9,51 +8,21 @@ type Props = {
   speakingId: string | null;
   onSpeak: (id: string, text: string) => void;
   onStopSpeak: () => void;
-  onSuggest: (text: string) => void;
 };
 
-export function Thread({
-  messages,
-  streaming,
-  speakingId,
-  onSpeak,
-  onStopSpeak,
-  onSuggest,
-}: Props) {
+export function Thread({ messages, streaming, speakingId, onSpeak, onStopSpeak }: Props) {
   const empty = messages.length === 0;
 
   return (
     <div className="flex flex-col gap-6">
       {empty ? (
-        <>
-          <AssistantBubble
-            text={GREETING}
-            speaking={speakingId === "greeting"}
-            streaming={false}
-            onSpeak={() => onSpeak("greeting", GREETING)}
-            onStopSpeak={onStopSpeak}
-          />
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {SUGGESTIONS.map((s, i) => (
-              <button
-                key={s.label}
-                type="button"
-                onClick={() => onSuggest(s.text)}
-                className={cn(
-                  "enter rounded-lg bg-surface/80 px-4 py-2.5 text-left shadow-[var(--shadow-border)]",
-                  "transition-[box-shadow,transform] duration-150 hover:shadow-[var(--shadow-border-hover)]",
-                  "active:scale-[0.96]",
-                )}
-                style={{ animationDelay: `${120 + i * 80}ms` }}
-              >
-                <span className="block font-display text-sm text-gold">{s.label}</span>
-                <span className="mt-1 block font-serif text-xs leading-relaxed text-muted line-clamp-2">
-                  {s.text}
-                </span>
-              </button>
-            ))}
-          </div>
-        </>
+        <AssistantBubble
+          text={GREETING}
+          speaking={speakingId === "greeting"}
+          streaming={false}
+          onSpeak={() => onSpeak("greeting", GREETING)}
+          onStopSpeak={onStopSpeak}
+        />
       ) : (
         messages.map((m) =>
           m.role === "user" ? (
@@ -77,7 +46,7 @@ export function Thread({
 function UserBubble({ text }: { text: string }) {
   return (
     <div className="flex justify-end">
-      <p className="max-w-lg rounded-lg bg-gold/10 px-4 py-3 font-serif text-sm leading-relaxed text-parchment">
+      <p className="max-w-lg rounded-2xl bg-elevated px-4 py-3 text-sm leading-relaxed text-fg">
         {text}
       </p>
     </div>
@@ -102,15 +71,15 @@ function AssistantBubble({
       <img
         src="/marcus.jpg"
         alt=""
-        className="mt-1 size-8 shrink-0 rounded-full object-cover face-crop outline outline-1 -outline-offset-1 outline-gold/25"
+        className="mt-0.5 size-8 shrink-0 rounded-full object-cover face-crop ring-1 ring-line"
       />
       <div className="min-w-0 flex-1">
-        <p className="font-display text-xs tracking-widest text-gold uppercase">Marcus</p>
-        <p className="mt-1 font-serif text-base leading-relaxed text-parchment whitespace-pre-wrap">
+        <p className="text-xs font-medium tracking-widest text-muted uppercase">Marcus</p>
+        <p className="mt-1 text-base leading-relaxed text-fg whitespace-pre-wrap">
           {text}
           {streaming && !text ? <span className="text-muted">He considers…</span> : null}
           {streaming ? (
-            <span className="ml-0.5 inline-block h-4 w-px translate-y-0.5 bg-gold/80" />
+            <span className="ml-0.5 inline-block h-4 w-px translate-y-0.5 bg-fg/70" />
           ) : null}
         </p>
         {!streaming && text ? (
@@ -118,15 +87,15 @@ function AssistantBubble({
             type="button"
             variant="ghost"
             size="sm"
-            className="mt-1 h-8 px-2 text-muted hover:text-gold"
+            className="mt-1 h-8 px-2 text-muted hover:text-fg"
             onClick={speaking ? onStopSpeak : onSpeak}
             aria-label={speaking ? "Stop speaking" : "Speak this reply"}
           >
             {speaking ? <Square className="size-3.5 fill-current" /> : <Volume2 className="size-3.5" />}
-            <span className="font-serif text-xs">{speaking ? "Silence" : "Hear him"}</span>
+            <span className="text-xs">{speaking ? "Silence" : "Hear him"}</span>
           </Button>
         ) : streaming ? (
-          <span className="mt-2 inline-flex items-center gap-1.5 font-serif text-xs text-muted">
+          <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted">
             <Loader2 className="size-3 animate-spin" />
             Writing
           </span>

@@ -30,10 +30,10 @@ export function Slider({
       onValueChange={(v) => onChange(v[0] ?? value)}
       aria-label={ariaLabel}
     >
-      <SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-gold/20">
-        <SliderPrimitive.Range className="absolute h-full bg-gold" />
+      <SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-elevated">
+        <SliderPrimitive.Range className="absolute h-full bg-fg" />
       </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb className="block size-4 rounded-full bg-parchment shadow-[0_0_0_4px_rgb(18_14_10_/_0.5)] transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold" />
+      <SliderPrimitive.Thumb className="block size-4 rounded-full bg-fg shadow-[0_0_0_4px_rgb(0_0_0_/_0.5)] transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg" />
     </SliderPrimitive.Root>
   );
 }

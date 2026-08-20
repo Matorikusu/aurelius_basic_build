@@ -1,7 +1,7 @@
 import { i as TSS_SERVER_FUNCTION, r as createServerFn } from "./ssr.mjs";
-import { f as sanitizeManner, l as getSql, t as DEFAULT_MANNER } from "./prompt-DbjQ97_N.mjs";
-import { t as authMiddleware } from "./middleware-Cmdy2VgD.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/conversations-EkK6yrBu.js
+import { c as getSql, d as sanitizeManner, f as sanitizeVoice, t as DEFAULT_MANNER } from "./prompt-C-qguUIy.mjs";
+import { t as authMiddleware } from "./middleware-G8dfOQGf.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/conversations-Dw3L5mlX.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
 	return Object.assign(splitImportFn, {
@@ -61,7 +61,7 @@ var loadConversation = createServerFn({ method: "POST" }).middleware([authMiddle
 	return {
 		id: row.id,
 		title: row.title,
-		voiceId: row.voice_id,
+		voiceId: sanitizeVoice(row.voice_id),
 		manner,
 		messages: msgs.filter((m) => m.role === "user" || m.role === "assistant").map((m) => ({
 			id: m.id,
@@ -78,7 +78,7 @@ var saveTurn_createServerFn_handler = createServerRpc({
 var saveTurn = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator((input) => input).handler(saveTurn_createServerFn_handler, async ({ context, data }) => {
 	const sql = await getSql();
 	const mannerJson = JSON.stringify(sanitizeManner(data.manner));
-	const voiceId = data.voiceId.slice(0, 40);
+	const voiceId = sanitizeVoice(data.voiceId);
 	const title = titleFrom(data.titleSource);
 	if ((await sql`
       select id from conversations where id = ${data.conversationId} and user_id = ${context.userId} limit 1
@@ -123,7 +123,7 @@ var loadPrefs = createServerFn({ method: "GET" }).middleware([authMiddleware]).h
 	if (!r) return null;
 	const register = r.register === "journal" || r.register === "emperor" ? r.register : "counsel";
 	return {
-		voiceId: r.voice_id || "lux",
+		voiceId: sanitizeVoice(r.voice_id),
 		autoSpeak: Boolean(r.auto_speak),
 		manner: sanitizeManner({
 			register,
@@ -140,7 +140,7 @@ var savePrefs_createServerFn_handler = createServerRpc({
 var savePrefs = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator((input) => input).handler(savePrefs_createServerFn_handler, async ({ context, data }) => {
 	const sql = await getSql();
 	const manner = sanitizeManner(data.manner);
-	const voiceId = data.voiceId.slice(0, 40);
+	const voiceId = sanitizeVoice(data.voiceId);
 	await sql`
       insert into marcus_prefs (user_id, voice_id, register, austerity, brevity, auto_speak)
       values (${context.userId}, ${voiceId}, ${manner.register}, ${manner.austerity}, ${manner.brevity}, ${data.autoSpeak})

@@ -47,7 +47,7 @@ export function Composer({
     <form onSubmit={handleSubmit} className="flex items-end gap-2">
       <Button
         type="button"
-        variant={recording ? "gold" : "outline"}
+        variant={recording ? "solid" : "outline"}
         size="icon"
         onClick={onMicToggle}
         disabled={busy}
@@ -68,10 +68,10 @@ export function Composer({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
         disabled={busy || recording}
-        placeholder={recording ? "Listening…" : "Speak, then — what disturbs the mind?"}
+        placeholder={recording ? "Listening…" : "Speak of what disturbs the mind"}
         className={cn(
-          "max-h-40 min-h-11 flex-1 resize-none rounded-lg bg-surface/90 px-4 py-2.5",
-          "font-serif text-sm leading-relaxed text-parchment placeholder:text-muted/80",
+          "max-h-40 min-h-11 flex-1 resize-none rounded-2xl bg-surface px-4 py-2.5",
+          "text-sm leading-relaxed text-fg placeholder:text-muted",
           "shadow-[var(--shadow-border)] outline-none",
           "focus:shadow-[var(--shadow-border-hover)]",
           "disabled:opacity-60",

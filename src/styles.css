@@ -2,16 +2,17 @@
 @import "tw-animate-css";
 
 @theme {
-  --color-ink: #120e0a;
-  --color-surface: #1c1610;
-  --color-parchment: #eadfcb;
-  --color-muted: #9a8a72;
-  --color-gold: #c9a45c;
-  --font-display: "Cinzel", "Palatino Linotype", Palatino, "Times New Roman", serif;
-  --font-serif: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --radius: 0.5rem;
-  --shadow-border: 0 0 0 1px rgb(201 164 92 / 0.18);
-  --shadow-border-hover: 0 0 0 1px rgb(201 164 92 / 0.32);
+  --color-bg: #000000;
+  --color-surface: #1c1c1e;
+  --color-elevated: #2c2c2e;
+  --color-fg: #f5f5f7;
+  --color-muted: #86868b;
+  --color-line: #3a3a3c;
+  --color-accent: #f5f5f7;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  --radius: 0.75rem;
+  --shadow-border: 0 0 0 1px rgb(255 255 255 / 0.1);
+  --shadow-border-hover: 0 0 0 1px rgb(255 255 255 / 0.22);
 }
 
 @layer base {
@@ -24,15 +25,16 @@
   body,
   #app {
     min-height: 100%;
-    background: var(--color-ink);
-    color: var(--color-parchment);
+    background: var(--color-bg);
+    color: var(--color-fg);
   }
 
   h1,
   h2,
   h3 {
     text-wrap: balance;
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
+    letter-spacing: -0.03em;
   }
 
   p {
@@ -45,82 +47,42 @@
   }
 
   ::selection {
-    background: rgb(201 164 92 / 0.35);
-    color: var(--color-parchment);
-  }
-}
-
-@keyframes flicker {
-  0%,
-  100% {
-    opacity: 0.28;
-  }
-  42% {
-    opacity: 0.5;
-  }
-  63% {
-    opacity: 0.34;
-  }
-  81% {
-    opacity: 0.46;
+    background: rgb(245 245 247 / 0.18);
+    color: var(--color-fg);
   }
 }
 
 @keyframes pulse-speak {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgb(201 164 92 / 0.35);
+    box-shadow: 0 0 0 0 rgb(245 245 247 / 0.28);
   }
   50% {
-    box-shadow: 0 0 0 10px rgb(201 164 92 / 0);
+    box-shadow: 0 0 0 10px rgb(245 245 247 / 0);
   }
 }
 
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
-    filter: blur(4px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-    filter: blur(0);
   }
 }
 
-.grain {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9  0 0 0 0 0.8  0 0 0 0 0.55  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  pointer-events: none;
-}
-
-.flicker {
-  animation: flicker 4.6s ease-in-out infinite;
-}
-
-.chamber-veil {
-  background: linear-gradient(
-    to bottom,
-    rgb(18 14 10 / 0.55),
-    rgb(18 14 10 / 0.88) 45%,
-    var(--color-ink) 100%
-  );
-}
-
 .face-crop {
-  object-position: 50% 18%;
+  object-position: 50% 12%;
 }
 
 .portrait-crop {
-  object-position: 50% 22%;
-}
-
-.candle-glow {
-  background: radial-gradient(ellipse at 30% 20%, rgb(201 164 92 / 0.28), transparent 55%);
+  object-position: 50% 18%;
 }
 
 .enter {
-  animation: fade-up 480ms ease-out both;
+  animation: fade-up 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .speak-ring {
@@ -128,7 +90,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flicker,
   .enter,
   .speak-ring {
     animation: none;
