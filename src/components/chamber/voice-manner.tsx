@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -126,6 +127,11 @@ export function VoiceManner({ onPreviewVoice, previewingId }: Props) {
 
       <p className="pt-2 text-center text-xs leading-relaxed text-muted/70">
         Created by S Whorton — Matorikusu 2026 — All rights reserved.
+      </p>
+      <p className="text-center text-xs">
+        <Link to="/local" className="text-muted underline-offset-4 hover:text-fg hover:underline">
+          Run this on your machine
+        </Link>
       </p>
     </div>
   );
