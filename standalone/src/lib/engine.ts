@@ -4,14 +4,14 @@ import { GREETING, type ChatMessage, type Manner } from "./types";
 
 export const MODELS = [
   {
-    id: "Llama-3.2-3B-Instruct-q4f16_1-MLC",
-    label: "Steady",
-    hint: "Better counsel · about 2 GB, once",
-  },
-  {
     id: "Llama-3.2-1B-Instruct-q4f16_1-MLC",
     label: "Swift",
-    hint: "Lighter · about 1 GB, once",
+    hint: "Anyone can load this · about 1 GB, once",
+  },
+  {
+    id: "Llama-3.2-3B-Instruct-q4f16_1-MLC",
+    label: "Steady",
+    hint: "Closer to local Ollama · about 2 GB, once",
   },
 ] as const;
 

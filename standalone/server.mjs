@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { handleApi } from "./proxy.mjs";
 
 const ROOT = fileURLToPath(new URL(".", import.meta.url));
 const DIST = join(ROOT, "dist");
@@ -41,8 +42,9 @@ if (!existsSync(join(DIST, "index.html"))) {
   process.exit(1);
 }
 
-const server = createServer((req, res) => {
+const server = createServer(async (req, res) => {
   try {
+    if (await handleApi(req, res)) return;
     const urlPath = (req.url || "/").split("?")[0];
     const file = safePath(urlPath === "/" ? "/index.html" : urlPath);
     if (file && existsSync(file) && statSync(file).isFile()) {
@@ -59,7 +61,19 @@ const server = createServer((req, res) => {
   }
 });
 
-server.listen(PORT, "0.0.0.0", () => {
+server.listen(PORT, "0.0.0.0", async () => {
   console.log(`Aurelius is running at http://localhost:${PORT}`);
-  console.log("Free. On-device. No API key.");
+  try {
+    const res = await fetch("http://127.0.0.1:11434/api/tags");
+    if (res.ok) {
+      const data = await res.json();
+      const names = (data.models || []).map((m) => m.name);
+      if (names.length) console.log(`Ollama is ready · ${names.join(", ")}`);
+      else console.log("Ollama is running, but no model yet. Run:  ollama pull llama3.2");
+    } else {
+      console.log("Ollama is not ready. Install it from https://ollama.com then:  ollama pull llama3.2");
+    }
+  } catch {
+    console.log("Ollama is not running. Install it from https://ollama.com (free). Then:  ollama pull llama3.2");
+  }
 });

@@ -1,61 +1,18 @@
-# Aurelius — local & GitHub Pages
+# Aurelius
 
 A conversation with Marcus Aurelius. His notes, his limits, his manner.
 
-**Free. No account. No API key. He runs on your device.**
+**Free. No API key.** Neural voices (Lux, Orion, Altair, Perseus) run on the device.
 
 Created by S Whorton — Matorikusu 2026 — All rights reserved.
 
 ---
 
-## What you need
+## Put it on a public website (GitHub Pages)
 
-1. **A computer with Chrome or Edge** (WebGPU). A phone will struggle.
-2. **Node.js 20+** from [nodejs.org](https://nodejs.org) — only if you run it on your machine. GitHub Pages visitors do not need Node.
-3. The first visit **downloads a model once** (about 1–2 GB) and then keeps it. No one is billed.
+Anyone with Chrome or Edge can open the link and talk to him. No Ollama. No account.
 
----
-
-## Run on your computer
-
-1. Unzip this folder and open a terminal **inside it**.
-2. Start it:
-
-```bash
-node server.mjs
-```
-
-3. Open **http://localhost:8080**
-4. Wait until it says he is ready (first time only).
-5. Speak.
-
-To stop: `Ctrl+C`.
-
-Voices — **Lux, Orion, Altair, Perseus** — use your computer’s speech. Also free.
-
-In Settings you can pick **Steady** (better, ~2 GB) or **Swift** (lighter, ~1 GB).
-
-### If you want to change the code
-
-```bash
-npm install
-npm run dev
-```
-
-After edits:
-
-```bash
-npm run build
-npm start
-```
-
----
-
-## Put it on GitHub Pages
-
-No Cloudflare. No key. The model downloads in each visitor’s browser, once.
-
-1. Create a GitHub repository named `aurelius`.
+1. Create a GitHub repository named `aurelius` (public).
 2. From **inside this folder**:
 
 ```bash
@@ -67,26 +24,33 @@ git remote add origin https://github.com/YOURNAME/aurelius.git
 git push -u origin main
 ```
 
-3. GitHub → **Settings → Pages** → Source: **GitHub Actions**.
-4. Wait for the workflow. Your site will be `https://YOURNAME.github.io/aurelius/`.
+3. GitHub → **Settings → Pages**
+4. **Build and deployment → Source:** GitHub Actions
+5. Open the **Actions** tab and wait until **GitHub Pages** is green.
+6. Your site is `https://YOURNAME.github.io/aurelius/`
+
+The first visit downloads his mind (~1 GB) and his voice (~80 MB) into that visitor’s browser. After that it is cached. Nothing is billed. Use Chrome or Edge on a computer — phones will struggle.
+
+You can later add a custom domain under Settings → Pages.
 
 ---
 
-## Privacy
+## Run it on your computer (better counsel)
 
-- Conversation and model stay **on the device**.
-- Nothing is sent to xAI, OpenAI, or a server of ours.
+Locally he can use **Ollama** (the same logic you already like). Voices are the new neural ones either way.
+
+1. Install [Ollama](https://ollama.com) and open it.
+2. Install [Node.js LTS](https://nodejs.org).
+3. Windows: double-click `start.bat`. Mac/Linux: `bash start.sh`.
+4. Open **http://localhost:8080**
 
 ---
 
-## If something fails
+## Voices
 
-| Symptom | Fix |
-| --- | --- |
-| “cannot run him on-device” | Use Chrome or Edge on a computer, not Firefox/Safari/phone. |
-| Stuck on loading | Wait — first download is large. Stay on Wi‑Fi. Next visit is instant. |
-| `node` not found | Install Node.js LTS, then open a **new** terminal. |
-| Mic does nothing | Allow the microphone, or type. |
+Lux, Orion, Altair, Perseus are now a small neural TTS model (Kokoro), not the computer’s robot voice. First click of **Hear him** may take a few seconds while the voice loads.
+
+Turn on **Speak replies** in Settings to hear every answer.
 
 ---
 

@@ -19,6 +19,8 @@ type Props = {
   history: Conversation[];
   onOpen: (id: string) => void;
   onDelete: (id: string) => void;
+  backend: "ollama" | "webllm" | "none";
+  modelName?: string | null;
   loadNote?: string;
 };
 
@@ -30,6 +32,8 @@ export function Settings({
   history,
   onOpen,
   onDelete,
+  backend,
+  modelName,
   loadNote,
 }: Props) {
   const hint = REGISTERS.find((r) => r.id === prefs.manner.register)?.hint;
@@ -38,28 +42,44 @@ export function Settings({
     <div className="flex flex-col gap-8">
       <section>
         <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Mind</h2>
-        <p className="mt-1 text-sm text-muted">
-          Runs on this device. Free. The first load downloads a model and then keeps it.
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-1 rounded-full bg-surface p-1">
-          {MODELS.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => onChange({ ...prefs, modelId: m.id })}
-              className={cn(
-                "rounded-full px-2 py-2 text-xs font-medium whitespace-nowrap",
-                prefs.modelId === m.id ? "bg-elevated text-fg" : "text-muted hover:text-fg",
-              )}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-center text-xs text-muted">
-          {MODELS.find((m) => m.id === prefs.modelId)?.hint}
-        </p>
-        {loadNote ? <p className="mt-2 text-center text-xs text-muted">{loadNote}</p> : null}
+        {backend === "ollama" ? (
+          <p className="mt-2 text-sm text-muted">
+            Using Ollama on this computer{modelName ? ` · ${modelName}` : ""}. Free. Nothing is sent
+            away.
+          </p>
+        ) : backend === "webllm" ? (
+          <>
+            <p className="mt-1 text-sm text-muted">
+              Runs in this browser. First visit downloads a model once, then it stays. Chrome or
+              Edge on a computer.
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-1 rounded-full bg-surface p-1">
+              {MODELS.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => onChange({ ...prefs, modelId: m.id })}
+                  className={cn(
+                    "rounded-full px-2 py-2 text-xs font-medium whitespace-nowrap",
+                    prefs.modelId === m.id ? "bg-elevated text-fg" : "text-muted hover:text-fg",
+                  )}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-center text-xs text-muted">
+              {MODELS.find((m) => m.id === prefs.modelId)?.hint}
+            </p>
+          </>
+        ) : (
+          <p className="mt-2 text-sm text-muted">
+            Install Ollama from ollama.com, then run{" "}
+            <span className="text-fg">ollama pull llama3.2</span>. No plugins. No GitHub. No API
+            key.
+          </p>
+        )}
+        {loadNote ? <p className="mt-2 text-xs text-muted">{loadNote}</p> : null}
       </section>
 
       <section>
@@ -121,7 +141,7 @@ export function Settings({
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Voice</h2>
-            <p className="mt-1 text-sm text-muted">Your computer speaks him. Free.</p>
+            <p className="mt-1 text-sm text-muted">Neural voice, on this device. Not the computer’s robot voice.</p>
           </div>
           <label className="flex items-center gap-2 text-xs text-muted">
             Speak replies

@@ -14,7 +14,7 @@ const KEY = "aurelius.local.prefs";
 export const DEFAULT_PREFS: Prefs = {
   modelId: MODELS[0].id,
   voiceId: DEFAULT_VOICE,
-  autoSpeak: false,
+  autoSpeak: true,
   manner: DEFAULT_MANNER,
 };
 
@@ -25,7 +25,7 @@ export function loadPrefs(): Prefs {
     return {
       modelId: raw.modelId && isModelId(raw.modelId) ? raw.modelId : DEFAULT_PREFS.modelId,
       voiceId: sanitizeVoice(raw.voiceId),
-      autoSpeak: Boolean(raw.autoSpeak),
+      autoSpeak: raw.autoSpeak === false ? false : true,
       manner: {
         register:
           raw.manner?.register === "journal" || raw.manner?.register === "emperor"

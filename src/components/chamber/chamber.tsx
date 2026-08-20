@@ -8,7 +8,7 @@ import { IdentityBlock, Portrait } from "@/components/chamber/portrait-rail";
 import { Thread } from "@/components/chamber/thread";
 import { VoiceManner } from "@/components/chamber/voice-manner";
 import { Button } from "@/components/ui/button";
-import { playBlob, stopAudio } from "@/lib/audio";
+import { playBlob, speakBrowser, stopAudio } from "@/lib/audio";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import {
   deleteConversation,
@@ -98,8 +98,12 @@ export function Chamber() {
       stopAudio();
       setSpeakingId(id);
       try {
-        const blob = await speakText(text, voice);
-        await playBlob(blob);
+        try {
+          const blob = await speakText(text, voice);
+          await playBlob(blob);
+        } catch {
+          await speakBrowser(text, voice);
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "The voice faltered.";
         if (!/abort/i.test(msg)) toast.error(msg);
@@ -121,8 +125,12 @@ export function Chamber() {
     setPreviewingId(id);
     setSpeakingId("preview");
     try {
-      const blob = await speakText(VOICE_SAMPLE, id);
-      await playBlob(blob);
+      try {
+        const blob = await speakText(VOICE_SAMPLE, id);
+        await playBlob(blob);
+      } catch {
+        await speakBrowser(VOICE_SAMPLE, id);
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "The voice faltered.");
     } finally {
@@ -183,7 +191,7 @@ export function Chamber() {
         setMessages((cur) =>
           cur.map((m) =>
             m.id === assistantMsg.id && !m.content
-              ? { ...m, content: "I am silent a moment. Try again when the line is clear." }
+              ? { ...m, content: `I am silent a moment. ${msg}` }
               : m,
           ),
         );

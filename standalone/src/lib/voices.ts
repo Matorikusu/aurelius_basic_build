@@ -5,10 +5,10 @@ export type VoiceOption = {
 };
 
 export const VOICES: VoiceOption[] = [
-  { id: "lux", name: "Lux", quality: "Grounded and quietly wise" },
-  { id: "orion", name: "Orion", quality: "Rich, cinematic" },
+  { id: "lux", name: "Lux", quality: "British, grave — a private notebook" },
+  { id: "orion", name: "Orion", quality: "Low and cinematic" },
   { id: "altair", name: "Altair", quality: "Refined, even, imperial" },
-  { id: "perseus", name: "Perseus", quality: "Steady and trustworthy" },
+  { id: "perseus", name: "Perseus", quality: "Steady American counsel" },
 ];
 
 export const DEFAULT_VOICE = "lux";

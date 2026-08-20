@@ -4,8 +4,10 @@ import { Composer } from "@/components/Composer";
 import { IdentityBlock, Portrait } from "@/components/Portrait";
 import { Settings } from "@/components/Settings";
 import { Thread } from "@/components/Thread";
-import { speakBrowser, stopAudio } from "@/lib/audio";
+import { speakBrowser, unlockSpeech } from "@/lib/audio";
+import { probeHealth, streamOllama, type Health } from "@/lib/api";
 import { ensureEngine, interruptCounsel, streamCounsel, webgpuAvailable } from "@/lib/engine";
+import { ensureTTS, speakNeural, stopNeural } from "@/lib/tts";
 import { loadPrefs, savePrefs, type Prefs } from "@/lib/prefs";
 import {
   loadActiveId,
@@ -34,6 +36,8 @@ function speechRec(): RecCtor | null {
 
 export function App() {
   const [prefs, setPrefs] = useState<Prefs>(() => loadPrefs());
+  const [health, setHealth] = useState<Health | null>(null);
+  const [backend, setBackend] = useState<"ollama" | "webllm" | "none">("none");
   const [conversationId, setConversationId] = useState(() => loadActiveId() || uid());
   const [history, setHistory] = useState<Conversation[]>(() => loadConversations());
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
@@ -49,7 +53,7 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
-  const [loadNote, setLoadNote] = useState("Preparing his mind…");
+  const [loadNote, setLoadNote] = useState("Looking for a free local model…");
 
   const abortRef = useRef<AbortController | null>(null);
   const recRef = useRef<{ stop: () => void } | null>(null);
@@ -65,39 +69,97 @@ export function App() {
   }, [messages, streaming]);
 
   useEffect(() => {
+    const unlock = () => unlockSpeech();
+    window.addEventListener("pointerdown", unlock, { once: true });
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
-    setReady(false);
-    if (!webgpuAvailable()) {
-      setLoadNote("Use Chrome or Edge on a computer — he runs on this device, free.");
-      setError("This browser cannot run an on-device model. Chrome or Edge will.");
-      return;
+    const localHost =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+    void ensureTTS((t) => {
+      if (!cancelled) setLoadNote(t);
+    }).catch((err: unknown) => {
+      if (!cancelled) {
+        setError(err instanceof Error ? err.message : "The neural voice could not load. Hear him may use a fallback.");
+      }
+    });
+
+    async function tick() {
+      const h = await probeHealth();
+      if (cancelled) return false;
+      setHealth(h);
+      if (h.backend === "ollama" && h.model) {
+        setBackend("ollama");
+        setReady(true);
+        setLoadNote(h.hint);
+        setError(null);
+        return true;
+      }
+      if (localHost) {
+        setBackend("none");
+        setReady(false);
+        setLoadNote(h.hint);
+        return false;
+      }
+      return false;
     }
-    setLoadNote("Preparing his mind… first load may take a minute.");
-    void ensureEngine(prefs.modelId, (p) => {
-      if (cancelled) return;
-      const pct = Math.round((p.progress || 0) * 100);
-      setLoadNote(pct > 0 ? `${p.text || "Loading"} · ${pct}%` : p.text || "Preparing his mind…");
-    })
-      .then(() => {
+
+    void (async () => {
+      const ok = await tick();
+      if (cancelled || ok || localHost) return;
+      if (!webgpuAvailable()) {
+        setBackend("none");
+        setReady(false);
+        setLoadNote("Use Chrome or Edge on a computer. His mind runs in the browser here.");
+        setError("This browser cannot run an on-device model. Chrome or Edge will.");
+        return;
+      }
+      setBackend("webllm");
+      setReady(false);
+      setLoadNote("Downloading his mind into this browser. Once, then it stays. Free.");
+      try {
+        await ensureEngine(prefs.modelId, (p) => {
+          if (cancelled) return;
+          const pct = Math.round((p.progress || 0) * 100);
+          setLoadNote(pct > 0 ? `${p.text || "Loading"} · ${pct}%` : p.text || "Downloading his mind…");
+        });
         if (cancelled) return;
         setReady(true);
-        setLoadNote("Ready. He stays on this device.");
+        setLoadNote("Ready. He thinks in this browser.");
         setError(null);
-      })
-      .catch((err: unknown) => {
+      } catch (err) {
         if (cancelled) return;
+        setBackend("none");
         setReady(false);
-        setError(err instanceof Error ? err.message : "The mind could not be loaded.");
+        const msg = err instanceof Error ? err.message : "The mind could not be loaded.";
+        setLoadNote(msg);
+        setError(msg);
+      }
+    })();
+
+    const id = window.setInterval(() => {
+      if (!localHost) {
+        window.clearInterval(id);
+        return;
+      }
+      void tick().then((ok) => {
+        if (ok) window.clearInterval(id);
       });
+    }, 4000);
+
     return () => {
       cancelled = true;
+      window.clearInterval(id);
     };
   }, [prefs.modelId]);
 
   useEffect(() => {
     return () => {
       abortRef.current?.abort();
-      stopAudio();
+      stopNeural();
       recRef.current?.stop();
     };
   }, []);
@@ -120,10 +182,14 @@ export function App() {
   const speak = useCallback(
     async (id: string, text: string, voice = prefs.voiceId) => {
       if (!text.trim()) return;
-      stopAudio();
+      stopNeural();
       setSpeakingId(id);
       try {
-        await speakBrowser(text, voice);
+        try {
+          await speakNeural(text, voice);
+        } catch {
+          await speakBrowser(text, voice);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "The voice faltered.");
       } finally {
@@ -134,14 +200,14 @@ export function App() {
   );
 
   const stopSpeak = useCallback(() => {
-    stopAudio();
+    stopNeural();
     setSpeakingId(null);
     setPreviewingId(null);
   }, []);
 
   const previewVoice = useCallback(
     async (id: string) => {
-      stopAudio();
+      stopNeural();
       setPreviewingId(id);
       setSpeakingId("preview");
       try {
@@ -158,7 +224,7 @@ export function App() {
       const content = text.replace(/\s+/g, " ").trim();
       if (!content || streaming) return;
       if (!ready) {
-        setError("Wait until his mind is ready — the first load is the only wait.");
+        setError("He is not ready yet. Install Ollama if you have not — see the note above.");
         return;
       }
       stopSpeak();
@@ -173,18 +239,28 @@ export function App() {
       const ac = new AbortController();
       abortRef.current = ac;
       try {
-        const full = await streamCounsel({
-          messages: [...prior, userMsg],
-          manner: prefs.manner,
-          modelId: prefs.modelId,
-          onProgress: () => {},
-          signal: ac.signal,
-          onDelta: (delta) => {
-            setMessages((cur) =>
-              cur.map((m) => (m.id === assistantMsg.id ? { ...m, content: m.content + delta } : m)),
-            );
-          },
-        });
+        const onDelta = (delta: string) => {
+          setMessages((cur) =>
+            cur.map((m) => (m.id === assistantMsg.id ? { ...m, content: m.content + delta } : m)),
+          );
+        };
+        const full =
+          backend === "webllm"
+            ? await streamCounsel({
+                messages: [...prior, userMsg],
+                manner: prefs.manner,
+                modelId: prefs.modelId,
+                onProgress: () => {},
+                signal: ac.signal,
+                onDelta,
+              })
+            : await streamOllama({
+                messages: [...prior, userMsg],
+                manner: prefs.manner,
+                model: health?.model,
+                signal: ac.signal,
+                onDelta,
+              });
         const finalText = full.trim();
         const done = nextMsgs.map((m) =>
           m.id === assistantMsg.id ? { ...m, content: finalText || m.content } : m,
@@ -199,7 +275,7 @@ export function App() {
         setMessages((cur) =>
           cur.map((m) =>
             m.id === assistantMsg.id && !m.content
-              ? { ...m, content: "I am silent a moment. Try again when the line is clear." }
+              ? { ...m, content: `I am silent a moment. ${msg}` }
               : m,
           ),
         );
@@ -208,7 +284,7 @@ export function App() {
         abortRef.current = null;
       }
     },
-    [streaming, ready, messages, prefs, conversationId, persist, speak, stopSpeak],
+    [streaming, ready, backend, health, messages, prefs, conversationId, persist, speak, stopSpeak],
   );
 
   function newConversation() {
@@ -281,6 +357,8 @@ export function App() {
       history={history}
       onOpen={openConversation}
       onDelete={removeConversation}
+      backend={backend}
+      modelName={health?.model}
       loadNote={ready ? undefined : loadNote}
     />
   );
@@ -329,9 +407,21 @@ export function App() {
           <div ref={scrollerRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-4 pb-8 lg:px-10 lg:py-6">
             <div className="mx-auto max-w-2xl">
               {!ready ? (
-                <div className="mb-6 rounded-2xl bg-surface px-5 py-6 text-sm leading-relaxed text-muted">
-                  {loadNote}
-                </div>
+                backend === "webllm" ||
+                (typeof window !== "undefined" &&
+                  window.location.hostname !== "localhost" &&
+                  window.location.hostname !== "127.0.0.1") ? (
+                  <div className="mb-6 rounded-2xl bg-surface px-5 py-6 text-sm leading-relaxed text-muted">
+                    <p className="font-medium text-fg">Preparing Marcus</p>
+                    <p className="mt-2">{loadNote}</p>
+                    <p className="mt-3 text-xs">
+                      First visit downloads a free model into this browser. After that it is instant.
+                      Use Chrome or Edge on a computer.
+                    </p>
+                  </div>
+                ) : (
+                  <SetupNote note={loadNote} />
+                )
               ) : null}
               <Thread
                 messages={messages}
@@ -385,6 +475,29 @@ export function App() {
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function SetupNote({ note }: { note: string }) {
+  return (
+    <div className="mb-6 rounded-2xl bg-surface px-5 py-6 text-sm leading-relaxed text-muted">
+      <p className="font-medium text-fg">He needs a free local mind</p>
+      <p className="mt-2">{note}</p>
+      <ol className="mt-4 flex flex-col gap-2 text-fg">
+        <li>
+          1. Install <span className="font-medium">Ollama</span> from{" "}
+          <a className="underline-offset-4 hover:underline" href="https://ollama.com" target="_blank" rel="noreferrer">
+            ollama.com
+          </a>{" "}
+          — a free app, like Chrome. No plugins. No GitHub.
+        </li>
+        <li>
+          2. Open a terminal and run{" "}
+          <code className="rounded bg-elevated px-1.5 py-0.5 text-xs">ollama pull llama3.2</code>
+        </li>
+        <li>3. Refresh this page.</li>
+      </ol>
     </div>
   );
 }
