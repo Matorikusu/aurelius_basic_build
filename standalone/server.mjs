@@ -3,9 +3,6 @@ import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { handleApi, loadDotEnv } from "./proxy.mjs";
-
-loadDotEnv();
 
 const ROOT = fileURLToPath(new URL(".", import.meta.url));
 const DIST = join(ROOT, "dist");
@@ -21,6 +18,7 @@ const TYPES = {
   ".jpeg": "image/jpeg",
   ".png": "image/png",
   ".webp": "image/webp",
+  ".wasm": "application/wasm",
   ".woff2": "font/woff2",
   ".ico": "image/x-icon",
 };
@@ -43,11 +41,10 @@ if (!existsSync(join(DIST, "index.html"))) {
   process.exit(1);
 }
 
-const server = createServer(async (req, res) => {
+const server = createServer((req, res) => {
   try {
-    if (await handleApi(req, res)) return;
     const urlPath = (req.url || "/").split("?")[0];
-    let file = safePath(urlPath === "/" ? "/index.html" : urlPath);
+    const file = safePath(urlPath === "/" ? "/index.html" : urlPath);
     if (file && existsSync(file) && statSync(file).isFile()) {
       sendFile(res, file);
       return;
@@ -64,7 +61,5 @@ const server = createServer(async (req, res) => {
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Aurelius is running at http://localhost:${PORT}`);
-  if (!process.env.XAI_API_KEY) {
-    console.log("No XAI_API_KEY in .env — paste a key in Settings in the app.");
-  }
+  console.log("Free. On-device. No API key.");
 });

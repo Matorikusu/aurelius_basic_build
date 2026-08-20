@@ -4,8 +4,8 @@ import { Composer } from "@/components/Composer";
 import { IdentityBlock, Portrait } from "@/components/Portrait";
 import { Settings } from "@/components/Settings";
 import { Thread } from "@/components/Thread";
-import { playBlob, speakBrowser, stopAudio } from "@/lib/audio";
-import { probeConnection, speakText, streamCounsel, type Connection } from "@/lib/api";
+import { speakBrowser, stopAudio } from "@/lib/audio";
+import { ensureEngine, interruptCounsel, streamCounsel, webgpuAvailable } from "@/lib/engine";
 import { loadPrefs, savePrefs, type Prefs } from "@/lib/prefs";
 import {
   loadActiveId,
@@ -34,7 +34,6 @@ function speechRec(): RecCtor | null {
 
 export function App() {
   const [prefs, setPrefs] = useState<Prefs>(() => loadPrefs());
-  const [conn, setConn] = useState<Connection | null>(null);
   const [conversationId, setConversationId] = useState(() => loadActiveId() || uid());
   const [history, setHistory] = useState<Conversation[]>(() => loadConversations());
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
@@ -49,31 +48,51 @@ export function App() {
   const [recording, setRecording] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const [loadNote, setLoadNote] = useState("Preparing his mind…");
 
   const abortRef = useRef<AbortController | null>(null);
   const recRef = useRef<{ stop: () => void } | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
-
-  const needsProxy =
-    typeof window !== "undefined" &&
-    window.location.hostname !== "localhost" &&
-    window.location.hostname !== "127.0.0.1" &&
-    !conn?.hasServerKey;
-
-  const canChat = Boolean(prefs.apiKey) || Boolean(conn?.hasServerKey);
 
   useEffect(() => {
     savePrefs(prefs);
   }, [prefs]);
 
   useEffect(() => {
-    void probeConnection(prefs).then(setConn);
-  }, [prefs.proxyUrl, prefs.apiKey]);
-
-  useEffect(() => {
     const el = scrollerRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, streaming]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setReady(false);
+    if (!webgpuAvailable()) {
+      setLoadNote("Use Chrome or Edge on a computer — he runs on this device, free.");
+      setError("This browser cannot run an on-device model. Chrome or Edge will.");
+      return;
+    }
+    setLoadNote("Preparing his mind… first load may take a minute.");
+    void ensureEngine(prefs.modelId, (p) => {
+      if (cancelled) return;
+      const pct = Math.round((p.progress || 0) * 100);
+      setLoadNote(pct > 0 ? `${p.text || "Loading"} · ${pct}%` : p.text || "Preparing his mind…");
+    })
+      .then(() => {
+        if (cancelled) return;
+        setReady(true);
+        setLoadNote("Ready. He stays on this device.");
+        setError(null);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setReady(false);
+        setError(err instanceof Error ? err.message : "The mind could not be loaded.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [prefs.modelId]);
 
   useEffect(() => {
     return () => {
@@ -83,23 +102,20 @@ export function App() {
     };
   }, []);
 
-  const persist = useCallback(
-    (id: string, msgs: ChatMessage[]) => {
-      const title =
-        msgs.find((m) => m.role === "user")?.content.replace(/\s+/g, " ").trim().slice(0, 48) ||
-        "Untitled counsel";
-      setHistory((prev) => {
-        const next: Conversation[] = [
-          { id, title, messages: msgs, updatedAt: Date.now() },
-          ...prev.filter((c) => c.id !== id),
-        ];
-        saveConversations(next);
-        return next;
-      });
-      saveActiveId(id);
-    },
-    [],
-  );
+  const persist = useCallback((id: string, msgs: ChatMessage[]) => {
+    const title =
+      msgs.find((m) => m.role === "user")?.content.replace(/\s+/g, " ").trim().slice(0, 48) ||
+      "Untitled counsel";
+    setHistory((prev) => {
+      const next: Conversation[] = [
+        { id, title, messages: msgs, updatedAt: Date.now() },
+        ...prev.filter((c) => c.id !== id),
+      ];
+      saveConversations(next);
+      return next;
+    });
+    saveActiveId(id);
+  }, []);
 
   const speak = useCallback(
     async (id: string, text: string, voice = prefs.voiceId) => {
@@ -107,23 +123,14 @@ export function App() {
       stopAudio();
       setSpeakingId(id);
       try {
-        if (prefs.voiceEngine === "browser") {
-          await speakBrowser(text);
-        } else {
-          try {
-            const blob = await speakText(text, voice, prefs, conn);
-            await playBlob(blob);
-          } catch {
-            await speakBrowser(text);
-          }
-        }
+        await speakBrowser(text, voice);
       } catch (err) {
         setError(err instanceof Error ? err.message : "The voice faltered.");
       } finally {
         setSpeakingId((cur) => (cur === id ? null : cur));
       }
     },
-    [prefs, conn],
+    [prefs.voiceId],
   );
 
   const stopSpeak = useCallback(() => {
@@ -150,9 +157,8 @@ export function App() {
     async (text: string) => {
       const content = text.replace(/\s+/g, " ").trim();
       if (!content || streaming) return;
-      if (!canChat) {
-        setError("Add an xAI API key in Settings to begin.");
-        setSettingsOpen(true);
+      if (!ready) {
+        setError("Wait until his mind is ready — the first load is the only wait.");
         return;
       }
       stopSpeak();
@@ -170,8 +176,8 @@ export function App() {
         const full = await streamCounsel({
           messages: [...prior, userMsg],
           manner: prefs.manner,
-          prefs,
-          conn,
+          modelId: prefs.modelId,
+          onProgress: () => {},
           signal: ac.signal,
           onDelta: (delta) => {
             setMessages((cur) =>
@@ -202,11 +208,12 @@ export function App() {
         abortRef.current = null;
       }
     },
-    [streaming, canChat, messages, prefs, conn, conversationId, persist, speak, stopSpeak],
+    [streaming, ready, messages, prefs, conversationId, persist, speak, stopSpeak],
   );
 
   function newConversation() {
     abortRef.current?.abort();
+    interruptCounsel();
     stopSpeak();
     const id = uid();
     setConversationId(id);
@@ -221,6 +228,7 @@ export function App() {
     const found = history.find((c) => c.id === id);
     if (!found) return;
     abortRef.current?.abort();
+    interruptCounsel();
     stopSpeak();
     setConversationId(id);
     saveActiveId(id);
@@ -270,11 +278,10 @@ export function App() {
       onChange={setPrefs}
       onPreviewVoice={(id) => void previewVoice(id)}
       previewingId={previewingId}
-      hasServerKey={Boolean(conn?.hasServerKey)}
-      needsProxy={needsProxy}
       history={history}
       onOpen={openConversation}
       onDelete={removeConversation}
+      loadNote={ready ? undefined : loadNote}
     />
   );
 
@@ -321,21 +328,18 @@ export function App() {
 
           <div ref={scrollerRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-4 pb-8 lg:px-10 lg:py-6">
             <div className="mx-auto max-w-2xl">
-              {!canChat ? (
-                <div className="rounded-2xl bg-surface px-5 py-6 text-sm leading-relaxed text-muted">
-                  Add your xAI API key in Settings to speak with Marcus. Conversations stay on this
-                  device.
+              {!ready ? (
+                <div className="mb-6 rounded-2xl bg-surface px-5 py-6 text-sm leading-relaxed text-muted">
+                  {loadNote}
                 </div>
               ) : null}
-              <div className={canChat ? "" : "mt-6"}>
-                <Thread
-                  messages={messages}
-                  streaming={streaming}
-                  speakingId={speakingId}
-                  onSpeak={(id, text) => void speak(id, text)}
-                  onStopSpeak={stopSpeak}
-                />
-              </div>
+              <Thread
+                messages={messages}
+                streaming={streaming}
+                speakingId={speakingId}
+                onSpeak={(id, text) => void speak(id, text)}
+                onStopSpeak={stopSpeak}
+              />
             </div>
           </div>
 
@@ -347,10 +351,10 @@ export function App() {
                 onSend={() => void send(draft)}
                 onMicToggle={toggleMic}
                 recording={recording}
-                busy={streaming}
+                busy={streaming || !ready}
               />
               <p className="mt-2 text-center text-xs text-muted">
-                {error ?? "He answers from the second century. Conversations stay on this device."}
+                {error ?? "He answers from the second century. Free. On this device."}
               </p>
             </div>
           </div>

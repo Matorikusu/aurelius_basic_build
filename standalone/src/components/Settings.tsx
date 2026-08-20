@@ -1,6 +1,7 @@
 import { Volume2 } from "lucide-react";
 import type { Conversation, Register } from "@/lib/types";
-import type { Prefs, VoiceEngine } from "@/lib/prefs";
+import type { Prefs } from "@/lib/prefs";
+import { MODELS } from "@/lib/engine";
 import { VOICES } from "@/lib/voices";
 import { cn } from "@/lib/utils";
 
@@ -15,11 +16,10 @@ type Props = {
   onChange: (next: Prefs) => void;
   onPreviewVoice: (voiceId: string) => void;
   previewingId: string | null;
-  hasServerKey: boolean;
-  needsProxy: boolean;
   history: Conversation[];
   onOpen: (id: string) => void;
   onDelete: (id: string) => void;
+  loadNote?: string;
 };
 
 export function Settings({
@@ -27,45 +27,39 @@ export function Settings({
   onChange,
   onPreviewVoice,
   previewingId,
-  hasServerKey,
-  needsProxy,
   history,
   onOpen,
   onDelete,
+  loadNote,
 }: Props) {
   const hint = REGISTERS.find((r) => r.id === prefs.manner.register)?.hint;
 
   return (
     <div className="flex flex-col gap-8">
       <section>
-        <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Key</h2>
+        <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Mind</h2>
         <p className="mt-1 text-sm text-muted">
-          {hasServerKey
-            ? "A key is already set on this machine. You can leave this blank."
-            : "Your xAI key stays in this browser. It is never uploaded to GitHub."}
+          Runs on this device. Free. The first load downloads a model and then keeps it.
         </p>
-        <input
-          type="password"
-          autoComplete="off"
-          value={prefs.apiKey}
-          placeholder={hasServerKey ? "Using server key" : "xai-…"}
-          onChange={(e) => onChange({ ...prefs, apiKey: e.target.value.trim() })}
-          className="mt-3 w-full rounded-xl bg-surface px-3 py-2.5 text-sm text-fg shadow-[var(--shadow-border)] outline-none placeholder:text-muted focus:shadow-[var(--shadow-border-hover)]"
-        />
-        {needsProxy ? (
-          <>
-            <p className="mt-4 text-sm text-muted">
-              GitHub Pages cannot call xAI directly. Paste your Cloudflare Worker URL.
-            </p>
-            <input
-              type="url"
-              value={prefs.proxyUrl}
-              placeholder="https://aurelius.yourname.workers.dev"
-              onChange={(e) => onChange({ ...prefs, proxyUrl: e.target.value.trim() })}
-              className="mt-2 w-full rounded-xl bg-surface px-3 py-2.5 text-sm text-fg shadow-[var(--shadow-border)] outline-none placeholder:text-muted focus:shadow-[var(--shadow-border-hover)]"
-            />
-          </>
-        ) : null}
+        <div className="mt-3 grid grid-cols-2 gap-1 rounded-full bg-surface p-1">
+          {MODELS.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => onChange({ ...prefs, modelId: m.id })}
+              className={cn(
+                "rounded-full px-2 py-2 text-xs font-medium whitespace-nowrap",
+                prefs.modelId === m.id ? "bg-elevated text-fg" : "text-muted hover:text-fg",
+              )}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-center text-xs text-muted">
+          {MODELS.find((m) => m.id === prefs.modelId)?.hint}
+        </p>
+        {loadNote ? <p className="mt-2 text-center text-xs text-muted">{loadNote}</p> : null}
       </section>
 
       <section>
@@ -127,7 +121,7 @@ export function Settings({
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Voice</h2>
-            <p className="mt-1 text-sm text-muted">The instrument, not the man.</p>
+            <p className="mt-1 text-sm text-muted">Your computer speaks him. Free.</p>
           </div>
           <label className="flex items-center gap-2 text-xs text-muted">
             Speak replies
@@ -139,60 +133,39 @@ export function Settings({
             />
           </label>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-1 rounded-full bg-surface p-1">
-          {(["xai", "browser"] as VoiceEngine[]).map((engine) => (
-            <button
-              key={engine}
-              type="button"
-              onClick={() => onChange({ ...prefs, voiceEngine: engine })}
-              className={cn(
-                "rounded-full px-2 py-2 text-xs font-medium whitespace-nowrap",
-                prefs.voiceEngine === engine ? "bg-elevated text-fg" : "text-muted hover:text-fg",
-              )}
-            >
-              {engine === "xai" ? "xAI" : "Browser"}
-            </button>
-          ))}
-        </div>
-        {prefs.voiceEngine === "xai" ? (
-          <ul className="mt-3 flex flex-col gap-1">
-            {VOICES.map((v) => {
-              const active = v.id === prefs.voiceId;
-              return (
-                <li key={v.id}>
-                  <div
-                    className={cn(
-                      "flex items-center gap-2 rounded-xl px-2 py-1.5",
-                      active ? "bg-elevated" : "hover:bg-surface",
-                    )}
+        <ul className="mt-3 flex flex-col gap-1">
+          {VOICES.map((v) => {
+            const active = v.id === prefs.voiceId;
+            return (
+              <li key={v.id}>
+                <div
+                  className={cn(
+                    "flex items-center gap-2 rounded-xl px-2 py-1.5",
+                    active ? "bg-elevated" : "hover:bg-surface",
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={() => onChange({ ...prefs, voiceId: v.id })}
+                    className="min-w-0 flex-1 text-left"
                   >
-                    <button
-                      type="button"
-                      onClick={() => onChange({ ...prefs, voiceId: v.id })}
-                      className="min-w-0 flex-1 text-left"
-                    >
-                      <span className="block text-sm font-medium text-fg">{v.name}</span>
-                      <span className="block truncate text-xs text-muted">{v.quality}</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="grid size-9 place-items-center rounded-full text-muted hover:text-fg"
-                      aria-label={`Preview ${v.name}`}
-                      onClick={() => onPreviewVoice(v.id)}
-                      disabled={previewingId === v.id}
-                    >
-                      <Volume2 className="size-4" />
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="mt-3 text-sm text-muted">
-            Uses your computer’s voices. No API call. Quality varies by browser.
-          </p>
-        )}
+                    <span className="block text-sm font-medium text-fg">{v.name}</span>
+                    <span className="block truncate text-xs text-muted">{v.quality}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="grid size-9 place-items-center rounded-full text-muted hover:text-fg"
+                    aria-label={`Preview ${v.name}`}
+                    onClick={() => onPreviewVoice(v.id)}
+                    disabled={previewingId === v.id}
+                  >
+                    <Volume2 className="size-4" />
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       <section>

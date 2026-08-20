@@ -1,66 +1,50 @@
-let current: HTMLAudioElement | null = null;
-let objectUrl: string | null = null;
+const PROFILES: Record<string, { rate: number; pitch: number; pick: RegExp }> = {
+  lux: { rate: 0.88, pitch: 0.84, pick: /daniel|george|arthur|male|david/i },
+  orion: { rate: 0.9, pitch: 0.78, pick: /daniel|arthur|james|male/i },
+  altair: { rate: 0.96, pitch: 0.94, pick: /daniel|alex|tom|male/i },
+  perseus: { rate: 0.92, pitch: 0.86, pick: /david|fred|male|george/i },
+};
 
 export function stopAudio() {
-  if (current) {
-    current.pause();
-    current.onended = null;
-    current.onerror = null;
-    current.src = "";
-    current = null;
-  }
-  if (objectUrl) {
-    URL.revokeObjectURL(objectUrl);
-    objectUrl = null;
-  }
   if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
 }
 
-export function playBlob(blob: Blob): Promise<void> {
-  stopAudio();
-  const url = URL.createObjectURL(blob);
-  objectUrl = url;
-  const audio = new Audio(url);
-  current = audio;
-  return new Promise((resolve, reject) => {
-    audio.onended = () => {
-      stopAudio();
-      resolve();
-    };
-    audio.onerror = () => {
-      stopAudio();
-      reject(new Error("The voice faltered."));
-    };
-    void audio.play().catch((err: unknown) => {
-      stopAudio();
-      reject(err instanceof Error ? err : new Error("Could not play."));
-    });
-  });
-}
-
-function pickBrowserVoice(): SpeechSynthesisVoice | null {
+function pickVoice(voiceId: string): SpeechSynthesisVoice | null {
   const voices = speechSynthesis.getVoices();
   if (!voices.length) return null;
   const en = voices.filter((v) => /en[-_]/i.test(v.lang) || /english/i.test(v.name));
   const pool = en.length ? en : voices;
-  const male =
-    pool.find((v) => /male|daniel|david|george|arthur|alex|fred|tom/i.test(v.name)) ?? pool[0];
-  return male ?? null;
+  const re = PROFILES[voiceId]?.pick;
+  if (re) {
+    const hit = pool.find((v) => re.test(v.name));
+    if (hit) return hit;
+  }
+  return pool.find((v) => /male|daniel|david|george|arthur/i.test(v.name)) ?? pool[0] ?? null;
 }
 
-export function speakBrowser(text: string): Promise<void> {
+export function speakBrowser(text: string, voiceId = "lux"): Promise<void> {
   stopAudio();
   if (!text.trim() || typeof speechSynthesis === "undefined") {
     return Promise.reject(new Error("This browser has no spoken voice."));
   }
+  const profile = PROFILES[voiceId] ?? PROFILES.lux;
   return new Promise((resolve, reject) => {
     const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 0.92;
-    utter.pitch = 0.92;
-    const voice = pickBrowserVoice();
+    utter.rate = profile.rate;
+    utter.pitch = profile.pitch;
+    const voice = pickVoice(voiceId);
     if (voice) utter.voice = voice;
     utter.onend = () => resolve();
     utter.onerror = () => reject(new Error("The voice faltered."));
+    // Chrome often has an empty voice list until this event.
+    if (speechSynthesis.getVoices().length === 0) {
+      speechSynthesis.onvoiceschanged = () => {
+        const late = pickVoice(voiceId);
+        if (late) utter.voice = late;
+        speechSynthesis.speak(utter);
+      };
+      return;
+    }
     speechSynthesis.speak(utter);
   });
 }

@@ -1,14 +1,10 @@
 import { DEFAULT_MANNER, type Manner } from "./types";
 import { DEFAULT_VOICE, sanitizeVoice } from "./voices";
-
-export type VoiceEngine = "xai" | "browser";
+import { isModelId, MODELS, type ModelId } from "./engine";
 
 export type Prefs = {
-  apiKey: string;
-  proxyUrl: string;
-  model: string;
+  modelId: ModelId;
   voiceId: string;
-  voiceEngine: VoiceEngine;
   autoSpeak: boolean;
   manner: Manner;
 };
@@ -16,11 +12,8 @@ export type Prefs = {
 const KEY = "aurelius.local.prefs";
 
 export const DEFAULT_PREFS: Prefs = {
-  apiKey: "",
-  proxyUrl: "",
-  model: "grok-4.5",
+  modelId: MODELS[0].id,
   voiceId: DEFAULT_VOICE,
-  voiceEngine: "xai",
   autoSpeak: false,
   manner: DEFAULT_MANNER,
 };
@@ -30,11 +23,8 @@ export function loadPrefs(): Prefs {
     const raw = JSON.parse(localStorage.getItem(KEY) || "null") as Partial<Prefs> | null;
     if (!raw) return { ...DEFAULT_PREFS };
     return {
-      apiKey: typeof raw.apiKey === "string" ? raw.apiKey : "",
-      proxyUrl: typeof raw.proxyUrl === "string" ? raw.proxyUrl : "",
-      model: typeof raw.model === "string" && raw.model.trim() ? raw.model : "grok-4.5",
+      modelId: raw.modelId && isModelId(raw.modelId) ? raw.modelId : DEFAULT_PREFS.modelId,
       voiceId: sanitizeVoice(raw.voiceId),
-      voiceEngine: raw.voiceEngine === "browser" ? "browser" : "xai",
       autoSpeak: Boolean(raw.autoSpeak),
       manner: {
         register:

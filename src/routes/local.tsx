@@ -10,8 +10,8 @@ function LocalGuide() {
         <p className="text-xs font-medium tracking-widest text-muted uppercase">Aurelius</p>
         <h1 className="mt-2 text-4xl font-semibold tracking-tight">Run it yourself</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          A free, standalone copy. No account. Conversations stay in your browser. You can run it on
-          your computer or publish it to GitHub Pages.
+          Free. No account. No API key. Marcus runs on your computer. Conversations never leave the
+          device.
         </p>
 
         <a
@@ -23,27 +23,23 @@ function LocalGuide() {
         </a>
 
         <ol className="mt-12 flex flex-col gap-8 text-sm leading-relaxed">
-          <Step n="1" title="Install Node.js">
-            Download the LTS installer from{" "}
-            <A href="https://nodejs.org">nodejs.org</A>. Then open a new terminal.
+          <Step n="1" title="Use Chrome or Edge">
+            He runs on the device (WebGPU). A phone will struggle. First visit downloads a model
+            once — about 1–2 GB — then it stays.
           </Step>
-          <Step n="2" title="Unzip and open the folder">
-            Unzip <span className="text-fg">aurelius-local.zip</span>. In the terminal:
-            <Code>cd path/to/aurelius</Code>
+          <Step n="2" title="Install Node.js">
+            LTS from <A href="https://nodejs.org">nodejs.org</A>, then open a new terminal. Only
+            needed to serve the app on your machine.
           </Step>
-          <Step n="3" title="Get an xAI key">
-            Create a key at <A href="https://console.x.ai">console.x.ai</A>. This is the only paid
-            piece — Grok’s replies. The app is free.
+          <Step n="3" title="Unzip and start">
+            Unzip <span className="text-fg">aurelius-local.zip</span>, then:
+            <Code>cd path/to/aurelius{"\n"}node server.mjs</Code>
+            Open <span className="text-fg">http://localhost:8080</span>. No key to paste.
           </Step>
-          <Step n="4" title="Start it">
-            <Code>node server.mjs</Code>
-            Open <span className="text-fg">http://localhost:8080</span>. Paste the key in Settings.
-            No extra install. To edit the code later, see the README in the zip.
-          </Step>
-          <Step n="5" title="Optional: GitHub Pages">
-            The README inside the zip has the exact clicks. You will also paste a free Cloudflare
-            Worker (file included) so the public site can reach xAI without exposing a key in the
-            repo.
+          <Step n="4" title="Optional: GitHub Pages">
+            Push the folder to a repo named <span className="text-fg">aurelius</span>. Settings →
+            Pages → Source: GitHub Actions. Visitors download the model in their own browser. Still
+            free. Still no key.
           </Step>
         </ol>
 
@@ -80,7 +76,7 @@ function A({ href, children }: { href: string; children: ReactNode }) {
   );
 }
 
-function Code({ children }: { children: string }) {
+function Code({ children }: { children: ReactNode }) {
   return (
     <pre className="mt-2 overflow-x-auto rounded-xl bg-surface px-4 py-3 text-xs text-fg">{children}</pre>
   );
